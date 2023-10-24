@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#define MIN_BLOCK_SIZE sizeof(MemBlock) + 100
+
 /* typedef struct MemoryManagerCDT *MemoryManagerADT;
 
 MemoryManagerADT createMemoryManager(void *const restrict memoryForMemoryManager, void *const restrict managedMemory);
