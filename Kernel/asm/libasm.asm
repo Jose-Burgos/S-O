@@ -145,3 +145,8 @@ outb:
     mov rsp, rbp
     pop rbp
     ret
+
+_cmpxchg:
+	mov rax, rdx
+	lock cmpxchg [rdi], rsi
+	ret
