@@ -19,7 +19,7 @@ int ticks_elapsed() {
 }
 
 int seconds_elapsed() {
-	return ((double) ticks / 18);
+	return ((double) ticks/18);
 }
 
 uint64_t getTime() {
