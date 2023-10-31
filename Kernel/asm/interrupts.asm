@@ -40,6 +40,7 @@ EXTERN sys_changeFontSize
 EXTERN sys_inforeg
 EXTERN sys_beep
 EXTERN sys_malloc
+EXTERN sys_free
 
 
 SECTION .text
@@ -319,6 +320,10 @@ syscallINTHandler:
 
 .malloc:
         call sys_malloc
+        jmp .end
+
+.free:
+        call sys_free
         jmp .end
 
 .end:

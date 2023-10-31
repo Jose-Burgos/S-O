@@ -166,3 +166,7 @@ void * sys_malloc(uint64_t memSize) {
     return allocMemory(memSize);
 }
 
+void sys_free(void * mem) {
+    freeMemory(mem);
+}
+
