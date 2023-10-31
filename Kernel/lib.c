@@ -44,3 +44,20 @@ void * memcpy(void * destination, const void * source, uint64_t length) {
 
 	return destination;
 }
+
+int strlen(char *str)
+{
+	int i = 0;
+	for (; str[i] != '\0' && *str != '\0'; i++)
+		;
+	return i;
+}
+
+char *strcpy(char *dest, const char *src)
+{
+	char *aux;
+	for (aux = dest; *src != '\0';)
+		*(aux++) = *(src++);
+	*aux = '\0';
+	return aux;
+}
