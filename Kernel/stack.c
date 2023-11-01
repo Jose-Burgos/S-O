@@ -1,8 +1,9 @@
 #include "stack.h"
+#include <scheduler.h>
 
-StackFrame createStack(void *entryPoint, void *stackBase, uint64_t argc, char **argv)
+stackFrame createStack(void *entryPoint, void *stackBase, uint64_t argc, char **argv)
 {
-    StackFrame sf;
+    stackFrame sf;
     sf.r15 = 0x0;
     sf.r14 = 0x0;
     sf.r13 = 0x0;

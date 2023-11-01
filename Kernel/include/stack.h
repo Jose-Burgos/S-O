@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-typedef struct StackFrame
+typedef struct stackFrame
 {
     uint64_t r15;
     uint64_t r14;
@@ -26,8 +26,8 @@ typedef struct StackFrame
     uint64_t sp;
     uint64_t ss;
     uint64_t returnAddress;
-} StackFrame;
+} stackFrame;
 
-StackFrame createStack(void *entryPoint, void *stackBase, uint64_t argc, char **argv);
+stackFrame createStack(void *entryPoint, void *stackBase, uint64_t argc, char **argv);
 
 #endif

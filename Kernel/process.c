@@ -23,9 +23,10 @@ processP createProcess(char *name, char **argv, void *entryPoint, uint64_t prior
     int argc = count_argv(argv);
     p->argv = copy_args(argc,argv);
     char *stackBase = (char *)stack + STACK_SIZE - sizeof(uint64_t);
-    StackFrame sf = createStack(entryPoint, stackBase, argc, p->argv);
-    memcpy((char *)stack + STACK_SIZE - sizeof(StackFrame), &sf, sizeof(StackFrame));
+    stackFrame sf = createStack(entryPoint, stackBase, argc, p->argv);
+    memcpy((char *)stack + STACK_SIZE - sizeof(stackFrame), &sf, sizeof(stackFrame));
     p->stack = stack;
+    p->SP = (uint64_t)stack + STACK_SIZE - sizeof(stackFrame);
     p->priority = priority;
     p->pid = current_pid;
     current_pid++;

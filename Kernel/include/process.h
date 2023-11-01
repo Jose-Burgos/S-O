@@ -17,6 +17,7 @@ typedef struct process {
     states state;
     uint64_t pid;    
     uint64_t priority;
+    uint64_t SP; //stack pointer
 } process;
 
 typedef struct process * processP;
