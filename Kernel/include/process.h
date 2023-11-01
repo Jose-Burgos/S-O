@@ -13,14 +13,15 @@ typedef enum { READY = 0, RUNNING, BLOCKED, NEW, KILLED } states;
 typedef struct process {
     char *name;
     char **argv;
-    uint64_t pid;
-    states state;
     void *stack;
+    states state;
+    uint64_t pid;    
+    uint64_t priority;
 } process;
 
 typedef struct process * processP;
 
-processP createProcess(char *name, char **argv, void *entryPoint);
+processP createProcess(char *name, char **argv, void *entryPoint, uint64_t priority);
 
 void freeProcess(processP p);
 
