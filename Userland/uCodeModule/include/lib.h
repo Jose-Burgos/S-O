@@ -33,5 +33,6 @@ void shortSleep(int ticks);
 void printBase(uint64_t value, uint32_t base);
 void beep(int frequency);
 void * malloc(unsigned int memSize);
+void free(void * ptr);
 
 #endif
