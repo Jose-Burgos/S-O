@@ -163,6 +163,10 @@ uint64_t sys_changeFontSize(uint32_t size) {
 }
 
 void * sys_malloc(uint64_t memSize) {
-    return allocMemory(memSize);
+    return malloc(memSize);
+}
+
+void sys_free(void * mem) {
+    free(mem);
 }
 

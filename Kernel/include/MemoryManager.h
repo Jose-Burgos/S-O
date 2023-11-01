@@ -3,11 +3,21 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 
-typedef struct MemoryManagerCDT *MemoryManagerADT;
+//#define BUDDY
+#define MIN_BLOCK_SIZE sizeof(MemBlock) + 100
 
-MemoryManagerADT createMemoryManager(void *const restrict memoryForMemoryManager, void *const restrict managedMemory);
+typedef struct info_Mem {
+    size_t allocated;
+    size_t free;
+    size_t total;
+} info_Mem;
 
-void *allocMemory(const uint64_t memoryToAllocate);
+int initalizeMemoryManager(void *initialAddress, size_t size);
+void *malloc(size_t size);
+void getInfoMem(info_Mem *infoMemPtr);
+void free(void *ptr);
 
 #endif
