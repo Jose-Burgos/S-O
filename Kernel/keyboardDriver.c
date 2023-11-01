@@ -20,33 +20,33 @@ uint8_t shift = 0;
 uint8_t ctrl = 0;
 
 void saveKey(uint8_t c){
-    if (c == 0x2A || c == 0x36) {
+    switch (c) {
+    case 0x2A:
+    case 0x36:
         shift = 1;
         return;
-    }
-    if (c == 0xAA || c == 0xB6) {
+    case 0xAA:
+    case 0xB6:
         shift = 0;
         return;
-    }
-    if (shift) {
-        switch (c)
-        {
-        case 0x2B:
+    case 0x2B:
+        if (shift) {
             buf.keys[buf.count++] = '|';
-            break;
-        case 0x8:
-            buf.keys[buf.count++] = '&';
-            break;
         }
-    }
-    switch (c) {
-        case 0x1D:
-            ctrl = 1;
-            break;
-
-        case 0:
-            ctrl = 0;
-            break;
+        break;
+    case 0x8:
+        if (shift) {
+            buf.keys[buf.count++] = '&';
+        }
+        break;
+    case 0x1D:
+        ctrl = 1;
+        break;
+    default:
+        if (shift && c <= 128) {
+            buf.keys[buf.count++] = getKey(c) + ('A' - 'a') * shift;
+        }
+        break;
     }
     if (c > 128)
         return;
