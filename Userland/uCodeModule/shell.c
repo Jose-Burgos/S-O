@@ -3,6 +3,7 @@
 #include <timer.h>
 #include <lib.h>
 #include <tron.h>
+#include <tst.h>
 
 #define COMMAND_CHAR "$> "
 #define CURSOR "|"
@@ -24,6 +25,7 @@
 #define DEC_FONT_SIZE_COMMAND "dec-font"
 #define INFOREG_COMMAND "inforeg"
 #define PRINTMEM_COMMAND "printmem"
+#define TEST_MM_COMMAND "test-mm"
 
 #define MAX_TERMINAL_CHARS 124          // 124 = (1024/8) - 4 (number of characters that fit in one line minus the command prompt and cursor characters)
 #define HELP_MESSAGE "HELP:\n\
@@ -44,7 +46,8 @@ inforeg           - Displays the contents of all the registers at a given time.\
                     To save registers press and release the CTRL key.\n\
                     If the command is called before pressing CTRL at least once,\n\
                     the registers will appear as if they have the value 0\n\
-printmem           - Receives a parameter in hexadecimal. Displays the next 32 bytes after the given memory direction given\n"
+printmem          - Receives a parameter in hexadecimal. Displays the next 32 bytes after the given memory direction given\n\
+test-mm           - Tests memory manager\n"
 
 #define INCREASE 1
 #define DECREASE -1
@@ -68,6 +71,7 @@ void helpCommand(void);
 void printNewline(void);
 void testInvalidOpException();
 void testDivideByZeroException();
+int testMemory();
 
 void printInforeg();
 void printErrorMessage(char * program, char * errorMessage);
@@ -241,6 +245,11 @@ int readBuffer(char *buf) {
     } else if (!strcmp(buf, EXIT_COMMAND)){
         clear();
         return 0;
+    }else if (!strcmp(buf, TEST_MM_COMMAND)){
+        if (testMemory() == -1) {
+            printErrorMessage(TEST_MM_COMMAND, "Error while testing memory manager");
+            printNewline();
+            }
     } else {
         printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
         printNewline();
@@ -290,4 +299,8 @@ int increaseFontSize(){
 
 int decreaseFontSize(){
     return sys_changeFontSize(DECREASE);
+}
+
+int testMemory() {
+    return test_mm(1, (char*[]){"10000"});
 }

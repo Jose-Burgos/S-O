@@ -5,7 +5,7 @@
 #include <videoDriver.h>
 #include <idtLoader.h>
 #include <syscallManager.h>
-#include <MemoryManager.h> 
+#include <MemoryManager.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -42,13 +42,10 @@ void *initializeKernelBinary() {
 
     void * endOfModules = loadModules(&endOfKernelBinary, moduleAddresses);
 
+    clearBSS(&bss, &endOfKernel - &bss);
     void * startOfMem = (void *)(((uint8_t *) endOfModules + PageSize - (uint64_t) endOfModules % PageSize));
 
-    //printBase((uint64_t) startOfMem, 16); // need to comment clear screen
-
-    //MemoryManagerADT memoryManager = createMemoryManager(startOfMem, startOfMem + sizeof(MemoryManagerADT));
-
-    clearBSS(&bss, &endOfKernel - &bss);
+    initalizeMemoryManager(startOfMem, 0x100000);
 
     return getStackBase();
 }
@@ -56,7 +53,6 @@ void *initializeKernelBinary() {
 int main() {
     load_idt();
     clearScreen();
-
     ((EntryPoint) uCodeModuleAddress)();
 
     return 0;

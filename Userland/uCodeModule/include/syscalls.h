@@ -21,5 +21,6 @@ long sys_drawRectangle(int x, int y, int width, int height, Color color);
 long sys_inforeg(long * registers);
 long sys_changeFontSize(int diff);
 void * sys_malloc(int size);
+void sys_free(void * ptr);
 
 #endif
