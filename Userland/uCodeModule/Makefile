@@ -10,7 +10,7 @@ all: $(MODULE)
 
 $(MODULE): $(SOURCES) $(OBJECTS_ASM)
 	$(GCC) $(GCCFLAGS) -I./include -I./tests/include -T uCodeModule.ld _loader.c $(OBJECTS_ASM) $(SOURCES) $(SOURCES_TESTS) -o ../$(MODULE)
-	$(GCC) $(GCCFLAGS) -I./include -I./tests/include -T uCodeModule.ld -Wl,--oformat=elf64-x86-64 _loader.c $(OBJECTS_ASM) $(SOURCES) $(SOURCES_TESTS) -o ../0000-sampleCodeModule.elf
+# $(GCC) $(GCCFLAGS) -I./include -I./tests/include -T uCodeModule.ld -Wl,--oformat=elf64-x86-64 _loader.c $(OBJECTS_ASM) $(SOURCES) $(SOURCES_TESTS) -o ../0000-sampleCodeModule.elf
 
 
 object/%.asm.o : asm/%.asm

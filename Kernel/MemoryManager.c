@@ -3,7 +3,7 @@
 
 static info_Mem infoMem;
 
-#ifdef BUDDY // to run without buddy comment BUDDY macro in .h file
+#ifdef BUDDY
 
 #define TREE_HEIGHT 15
 #define BLOCK_SIZE 512
@@ -86,6 +86,7 @@ int initalizeMemoryManager(void *address, size_t size) {
 }
 
 void *malloc(size_t size) {
+    printString((uint8_t *)"Buddy Malloc\n", WHITE);
     size_t level = log_2(size / BLOCK_SIZE);
     if ((1 << level) * BLOCK_SIZE < size) {
         level++;
@@ -257,6 +258,7 @@ int initalizeMemoryManager(void *initialAddress, size_t size) {
 }
 
 void *malloc(size_t size) {
+    printString((uint8_t *)"Malloc\n", WHITE);
     // Verificar si el tamaño solicitado es 0
     if (size == 0) return NULL;
 

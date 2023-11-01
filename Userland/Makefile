@@ -13,6 +13,7 @@ uDataModule:
 clean:
 	cd uCodeModule; make clean
 	rm -rf *.bin
+	rm -rf *.elf
 
 
 .PHONY: uCodeModule all clean
