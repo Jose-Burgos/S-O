@@ -22,3 +22,7 @@ uint64_t addProcess(char *name, char **argv, void *entryPoint, uint64_t priority
 void changePriority(uint64_t priority, uint64_t pid);
 
 void killCurrentProcess();
+
+//kill a specific process
+void killProcess(uint64_t pid);
+
