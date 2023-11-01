@@ -85,7 +85,7 @@ int initalizeMemoryManager(void *address, size_t size) {
     return 0;
 }
 
-void *allocMemory(size_t size) {
+void *malloc(size_t size) {
     size_t level = log_2(size / BLOCK_SIZE);
     if ((1 << level) * BLOCK_SIZE < size) {
         level++;
@@ -256,7 +256,7 @@ int initalizeMemoryManager(void *initialAddress, size_t size) {
 	return 0;
 }
 
-void *allocMemory(size_t size) {
+void *malloc(size_t size) {
     // Verificar si el tamaño solicitado es 0
     if (size == 0) return NULL;
 

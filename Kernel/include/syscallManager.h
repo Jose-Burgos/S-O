@@ -32,5 +32,6 @@ uint64_t sys_timedRead(uint8_t fd, char * buf, uint32_t count, uint32_t millis);
 uint64_t sys_inforeg(uint64_t array[REGISTER_NUM]);
 uint64_t sys_changeFontSize(uint32_t dif);
 void * sys_malloc(uint64_t memSize);
+void sys_free(void * ptr);
 
 #endif

@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#define BUDDY
+//#define BUDDY
 #define MIN_BLOCK_SIZE sizeof(MemBlock) + 100
 
 typedef struct info_Mem {
@@ -16,7 +16,7 @@ typedef struct info_Mem {
 } info_Mem;
 
 int initalizeMemoryManager(void *initialAddress, size_t size);
-void *allocMemory(size_t size);
+void *malloc(size_t size);
 void getInfoMem(info_Mem *infoMemPtr);
 void free(void *ptr);
 
