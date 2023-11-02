@@ -7,229 +7,201 @@ static info_Mem infoMem;
 
 #define TREE_HEIGHT 15
 #define BLOCK_SIZE 512
-#define BLOCK_LIMIT (1 << (TREE_HEIGHT - 1)) // Maximum number of blocks at level zero == 2^14
-#define BLOCK_SIZE_LVL(level) ((1 << (level)) * BLOCK_SIZE)
-#define IS_POWER_OF_TWO(x) ((x > 0) && ((x & (x - 1)) == 0))
-
-/********************************************************************************************
-                                        ERROR HANDLING
-*********************************************************************************************/
-
-#define AD_ERROR 1
-#define SIZE_ERROR 2
-#define MEM_FULL 3
-#define OFF_LIMITS 4
-#define ERROR -1
+#define BLOCK_LIMIT (1 << (TREE_HEIGHT - 1))
+#define SIZE(level) ((1 << (level)) * BLOCK_SIZE)
+#define IS_POW2(x) (((x) != 0) && (((x) & ((x)-1)) == 0))
 
 typedef struct Block {
-    bool allocated;
-    size_t height;
+    size_t size;
+    size_t level;
     struct Block *next;
     struct Block *prev;
 } Block;
 
-typedef struct Buddy {
-    Block blocks[BLOCK_LIMIT]; // 2^14 blocks
-    Block *freeBlocks[TREE_HEIGHT]; // List of free blocks by level
-    size_t lvls;
-    size_t ablocks;
-} Buddy;
+typedef struct BuddyInfo {
+    Block blocks[BLOCK_LIMIT];
+    Block *freeRow[TREE_HEIGHT];
+    size_t lvl;
+    size_t used;
+    void* start;
+} BuddyInfo;
 
-static Buddy *buddyInfo;
+static BuddyInfo * buddy;
 
-size_t log_2(size_t x);
-Block *getNeighbour(Block *block_ptr);
-void newBlock(Block *block_ptr);
+size_t log2(size_t n); 
+void *getAddress(Block *block_ptr);
+Block *getBuddy(Block *block_ptr);
+void addBlock(Block *block_ptr);
 void removeBlock(Block *block_ptr);
 int splitBlock(size_t level);
-void mergeBuddy(Block *current);
+void mergeBuddy(Block *block_ptr);
 
-int initalizeMemoryManager(void *address, size_t size) {
-    if ((size_t) address % sizeof(size_t) != 0)
-        return AD_ERROR;
+int initalizeMemoryManager(void *initialAddress, size_t size)
+{
+    if ((size_t)initialAddress % sizeof(size_t) != 0 || size % BLOCK_SIZE != 0 || !IS_POW2(size / BLOCK_SIZE)) return -1;
 
-    if (size % BLOCK_SIZE != 0 || !IS_POWER_OF_TWO(size / BLOCK_SIZE))
-        return SIZE_ERROR;
+    size_t level = log2(size / BLOCK_SIZE);
 
-    size_t level = log_2(size / BLOCK_SIZE); // min level in the tree
-
-    if (level == 0)
-        return MEM_FULL;
-
-    if (level >= TREE_HEIGHT)
-        return OFF_LIMITS;
-
-    buddyInfo = address;
+    if (level == 0 || level >= TREE_HEIGHT) return -1;
 
     infoMem.allocated = 0;
-    infoMem.free = size;
-    infoMem.total = size;
+    infoMem.total = size - sizeof(BuddyInfo);
+    infoMem.free = size - sizeof(BuddyInfo);
+    buddy = initialAddress;
 
     for (size_t i = 0; i < BLOCK_LIMIT; i++) {
-        buddyInfo->blocks[i].allocated = false;
-        buddyInfo->blocks[i].height = 0;
-        buddyInfo->blocks[i].next = NULL;
-        buddyInfo->blocks[i].prev = NULL;
+        buddy->blocks[i].size = 0;
+        buddy->blocks[i].level = 0;
+        buddy->blocks[i].next = NULL;
+        buddy->blocks[i].prev = NULL;
     }
 
     for (size_t i = 0; i < TREE_HEIGHT; i++) {
-        buddyInfo->freeBlocks[i] = NULL;
+        buddy-> freeRow[i] = NULL;
     }
-        
-    buddyInfo->blocks[0].height = level;
-    buddyInfo->freeBlocks[level] = buddyInfo->blocks;
-    buddyInfo->lvls = level + 1;
-    buddyInfo->ablocks = 1 << level;
 
+    buddy->blocks[0].level = level;
+    buddy->freeRow[level] = buddy->blocks;
+    buddy->lvl = level + 1;
+    buddy->used = 1 << level;
+    buddy->start = initialAddress + sizeof(BuddyInfo);
 
     return 0;
 }
 
+
 void *malloc(size_t size) {
-    printString((uint8_t *)"Buddy Malloc\n", WHITE);
-    size_t level = log_2(size / BLOCK_SIZE);
+    size_t level = log2(size / BLOCK_SIZE);
     if ((1 << level) * BLOCK_SIZE < size) {
         level++;
     }
 
-    // If there is no block of the right size, search for a bigger one and split it the necessary number of times
-    if (buddyInfo->freeBlocks[level] == NULL) {
+    if (buddy->freeRow[level] == NULL)
+    {
         size_t min_above = level + 1;
-        while (min_above < buddyInfo->ablocks && buddyInfo->freeBlocks[min_above] == NULL) {
+        while (min_above < buddy->lvl && buddy->freeRow[min_above] == NULL) {
             min_above++;
         }
 
-        // No block found
-        if (min_above == buddyInfo->lvls) {
-            return NULL;
-        }
+        if (min_above == buddy->lvl) return NULL;
 
         while (min_above > level) {
             splitBlock(min_above--);
         }
     }
 
-    // Take block and return its memory address
-    Block *aux_block = buddyInfo->freeBlocks[level];
-    removeBlock(aux_block);
-    return (void *)buddyInfo + (aux_block - buddyInfo->blocks) * BLOCK_SIZE;
+    Block *block_ptr = buddy->freeRow[level];
+    removeBlock(block_ptr);
+    return getAddress(block_ptr);
 }
 
 void free(void *ptr) {
-    printString((uint8_t *)"Buddy free\n", WHITE);
-    if (!ptr) {
-        return;
-    }
-    size_t offset = ptr - (void *)buddyInfo;
-    if (offset % BLOCK_SIZE)
-        return;
+    size_t offset = ptr - buddy->start;
+    if (offset % BLOCK_SIZE) return;
 
-    Block *block_ptr = buddyInfo->blocks + (offset / BLOCK_SIZE);
-    if (block_ptr >= buddyInfo->blocks + buddyInfo->ablocks || !block_ptr->allocated)
-        return;
+    Block *block_ptr = buddy->blocks + (offset / BLOCK_SIZE);
+    if (block_ptr >= buddy->blocks + buddy->used || !block_ptr->size) return;
 
-    newBlock(block_ptr);
+    addBlock(block_ptr);
     mergeBuddy(block_ptr);
 }
 
-size_t log_2(size_t x) {
-    size_t ans = -1;
-    while (x > 0) {
-        x /= 2;   
-        ans++;
-    }
-    return ans;
+size_t log2(size_t n) {
+    size_t ret = 0;
+    while (n >>= 1)
+        ++ret;
+    return ret;
 }
 
-Block *getNeighbour(Block *current) {
-    size_t l_idx = (current - buddyInfo->blocks) >> current->height;
-    if (l_idx % 2) {
-        return current - (1 << current->height);
-    } else {
-        return current + (1 << current->height);
-    }
+void *getAddress(Block *block_ptr) {
+    return buddy->start + (block_ptr - buddy->blocks) * BLOCK_SIZE;
 }
 
-void newBlock(Block *current) {
-    current->next = buddyInfo->freeBlocks[current->height];
-    current->prev = NULL;
-
-    buddyInfo->freeBlocks[current->height] = current;
-
-    if (current->next != NULL)
-        current->next->prev = current;
-
-    current->allocated = false;
-    infoMem.allocated -= BLOCK_SIZE_LVL(current->height);
-    infoMem.free += BLOCK_SIZE_LVL(current->height);
-}
-
-void removeBlock(Block *current) {
-    if (current->next) {
-        current->next->prev = current->prev;
-    }
-
-    if (current->prev != NULL) {
-        current->prev->next = current->next;
+Block *getBuddy(Block *block_ptr) {
+    size_t level_index = (block_ptr - buddy->blocks) >> block_ptr->level;
+    if (level_index % 2) {
+        return block_ptr - (1 << block_ptr->level);
     }
     else {
-        buddyInfo->freeBlocks[current->height] = current->next;
+        return block_ptr + (1 << block_ptr->level);
+    }
+}
+
+void addBlock(Block *block_ptr) {
+    block_ptr->next = buddy->freeRow[block_ptr->level];
+    block_ptr->prev = NULL;
+
+    buddy->freeRow[block_ptr->level] = block_ptr;
+
+    if (block_ptr->next != NULL) {
+        block_ptr->next->prev = block_ptr;
     }
 
-    current->next = NULL;
-    current->prev = NULL;
-    current->allocated = true;
-    infoMem.allocated += BLOCK_SIZE_LVL(current->height);
-    infoMem.free -= BLOCK_SIZE_LVL(current->height);
+    block_ptr->size = 0;
+    infoMem.allocated -= SIZE(block_ptr->level);
+    infoMem.free += SIZE(block_ptr->level);
+}
+
+void removeBlock(Block *block_ptr) {
+    if (block_ptr->next) {
+        block_ptr->next->prev = block_ptr->prev;
+    }
+
+    if (block_ptr->prev != NULL) {
+        block_ptr->prev->next = block_ptr->next;
+    } else {
+        buddy->freeRow[block_ptr->level] = block_ptr->next;
+    }
+
+    block_ptr->next = NULL;
+    block_ptr->prev = NULL;
+    block_ptr->size = SIZE(block_ptr->level);
+    infoMem.allocated += block_ptr->size;
+    infoMem.free -= block_ptr->size;
 }
 
 int splitBlock(size_t level) {
-    if (level == 0 || buddyInfo->freeBlocks[level] == NULL) {
-        return ERROR;
-    }
+    if (level == 0 || buddy->freeRow[level] == NULL) return -1;
 
-    Block *freeList = buddyInfo->freeBlocks[level];
-    removeBlock(freeList);
-    freeList->height = level - 1;
+    Block *block_ptr = buddy->freeRow[level];
+    removeBlock(block_ptr);
+    block_ptr->level = level - 1;
 
-    Block *neighbour = getNeighbour(freeList);
-    neighbour->height = level - 1;
+    Block *buddy_ptr = getBuddy(block_ptr);
+    buddy_ptr->level = level - 1;
 
-    newBlock(neighbour);
-    newBlock(freeList);
+    addBlock(buddy_ptr);
+    addBlock(block_ptr);
 
     return 0;
 }
 
-void mergeBuddy(Block *current) {
-    if (current->height == buddyInfo->ablocks - 1) { 
-        return;
-    }
+void mergeBuddy(Block *block_ptr) {
+    if (block_ptr->level == buddy->lvl - 1) return;
 
-    Block *buddy_ptr = getNeighbour(current);
+    Block *buddy_ptr = getBuddy(block_ptr);
 
-    if (current->height != buddy_ptr->height)
-        return;
+    if (block_ptr->level != buddy_ptr->level) return;
 
-    if (current->allocated || buddy_ptr->allocated)
-        return;
+    if (!block_ptr->size || !buddy_ptr->size) return;
 
-    removeBlock(current);
+    removeBlock(block_ptr);
     removeBlock(buddy_ptr);
 
-    if (current > buddy_ptr)
+    if (block_ptr > buddy_ptr)
     {
-        Block *aux = current;
-        current = buddy_ptr;
+        Block *aux = block_ptr;
+        block_ptr = buddy_ptr;
         buddy_ptr = aux;
     }
 
-    current->height++;
-    newBlock(current);
-    mergeBuddy(current);
+    block_ptr->level++;
+    addBlock(block_ptr);
+    mergeBuddy(block_ptr);
 }
 
 #else 
+#define MIN_BLOCK_SIZE sizeof(MemBlock) + 100
 
 typedef struct MemBlock {
 	size_t size;
@@ -311,7 +283,6 @@ void *malloc(size_t size) {
 }
 
 void free(void *ptr) {
-    printString((uint8_t *)"Free\n", WHITE);
     if (!ptr) return;  // Si el puntero es NULL, simplemente regresar
 
     // Convertir el puntero al bloque que lo precede

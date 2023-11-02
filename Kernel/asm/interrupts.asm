@@ -185,7 +185,7 @@ _irq01Handler:
     pushState
     call keyPressed
 
-    cmp al, 0b10011101
+    cmp al, 0b10011101 ;diff
     jne .end
     popState
     snapshot
@@ -210,11 +210,6 @@ _irq01Handler:
  	exceptionHandler 6
 
 syscallINTHandler:
-    cli
-    mov rcx, r10
-    mov r9, rax
-    sti
-
     cmp rax, 0x00
     je .write
 
@@ -259,6 +254,9 @@ syscallINTHandler:
     
     cmp rax, 0x0E
     je .malloc
+
+    cmp rax, 0x0F
+    je .free
 
     jmp .end
 
