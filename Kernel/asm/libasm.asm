@@ -150,3 +150,8 @@ _cmpxchg:
 	mov rax, rdx
 	lock cmpxchg [rdi], rsi
 	ret
+
+_xchg:
+	mov rax, rsi 
+	xchg [rdi], rax 
+	ret
