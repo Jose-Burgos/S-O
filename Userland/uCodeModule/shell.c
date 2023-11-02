@@ -3,7 +3,7 @@
 #include <timer.h>
 #include <lib.h>
 #include <tron.h>
-#include <tst.h>
+#include "../tests/include/tst.h"
 
 #define COMMAND_CHAR "$> "
 #define CURSOR "|"
@@ -302,5 +302,5 @@ int decreaseFontSize(){
 }
 
 int testMemory() {
-    return test_mm(1, (char*[]){"10000"});
+    return test_mm(1, (char*[]){"100000"});
 }

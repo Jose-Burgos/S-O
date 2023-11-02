@@ -10,14 +10,20 @@ LOADERSRC=loader.asm
 LOADEROBJECT=$(LOADERSRC:%.asm=object/%.asm.o)
 STATICLIBS=
 
+ifeq ($(MAKECMDGOALS),buddy)
+	CFLAGS += -DBUDDY
+endif
+
 all: $(KERNEL)
+
+buddy: $(KERNEL)
 
 $(KERNEL): $(LOADEROBJECT) $(OBJECTS) $(STATICLIBS) $(OBJECTS_ASM)
 	$(LD) $(LDFLAGS) -T kernel.ld -o $(KERNEL) $(LOADEROBJECT) $(OBJECTS) $(OBJECTS_ASM) $(STATICLIBS)
 #	$(LD) $(LDFLAGS) -T kernel.ld --oformat=elf64-x86-64 -o kernel.elf $(LOADEROBJECT) $(OBJECTS) $(OBJECTS_ASM) $(STATICLIBS)
 
 object/%.o: %.c
-	$(GCC) $(GCCFLAGS) -I./include -c $< -o $@
+	$(GCC) $(GCCFLAGS) $(CFLAGS) -I./include -c $< -o $@
 
 object/%.asm.o : asm/%.asm
 	$(ASM) $(ASMFLAGS) $< -o $@
@@ -31,4 +37,4 @@ clean:
 	rm -rf *.bin
 	rm -rf *.elf
 
-.PHONY: all clean
+.PHONY: all clean buddy

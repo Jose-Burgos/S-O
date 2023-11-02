@@ -44,3 +44,11 @@ void * memcpy(void * destination, const void * source, uint64_t length) {
 
 	return destination;
 }
+
+int strlength(char *str) {
+	int i = 0;
+	while (str[i] != 0) {
+		i++;
+	}
+	return i;
+}
