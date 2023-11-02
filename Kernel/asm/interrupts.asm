@@ -41,6 +41,7 @@ EXTERN sys_inforeg
 EXTERN sys_beep
 EXTERN sys_malloc
 EXTERN sys_free
+EXTERN sys_memory_status
 
 
 SECTION .text
@@ -258,6 +259,9 @@ syscallINTHandler:
     cmp rax, 0x0F
     je .free
 
+    cmp rax, 0x10
+    je .memory_status
+
     jmp .end
 
 .write:
@@ -322,6 +326,10 @@ syscallINTHandler:
 
 .free:
         call sys_free
+        jmp .end
+
+.memory_status:
+        call sys_memory_status
         jmp .end
 
 .end:

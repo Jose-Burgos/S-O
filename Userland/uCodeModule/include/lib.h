@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <color.h>
+#include <syscall.h>
 
 typedef uint8_t bool;
 
@@ -34,5 +35,6 @@ void printBase(uint64_t value, uint32_t base);
 void beep(int frequency);
 void * malloc(unsigned int memSize);
 void free(void * ptr);
+void memStatus();
 
 #endif

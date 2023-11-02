@@ -33,5 +33,7 @@ uint64_t sys_inforeg(uint64_t array[REGISTER_NUM]);
 uint64_t sys_changeFontSize(uint32_t dif);
 void * sys_malloc(uint64_t memSize);
 void sys_free(void * ptr);
+void sys_memory_status(info_Mem * info);
+
 
 #endif

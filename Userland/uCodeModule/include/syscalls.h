@@ -1,10 +1,18 @@
 #ifndef _SYSCALLS_USERLAND_H_
 #define _SYSCALLS_USERLAND_H_
 #include <color.h>
+#include <stdint.h>
+#include <stddef.h>
 
 #define STDOUT 0
 #define STDERR 1
 #define STDIN 0
+
+typedef struct info_mem {
+    size_t allocated;
+    size_t free;
+    size_t total;
+} info_mem;
 
 long sys_read(unsigned char fd, char * s, int count);
 long sys_write(unsigned char fd, char * s, Color c);
@@ -22,5 +30,6 @@ long sys_inforeg(long * registers);
 long sys_changeFontSize(int diff);
 void * sys_malloc(int size);
 void sys_free(void * ptr);
+void sys_memorystatus(info_mem * info);
 
 #endif
