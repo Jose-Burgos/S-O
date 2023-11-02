@@ -116,6 +116,7 @@ void *malloc(size_t size) {
 }
 
 void free(void *ptr) {
+    printString((uint8_t *)"Buddy free\n", WHITE);
     if (!ptr) {
         return;
     }
@@ -258,7 +259,6 @@ int initalizeMemoryManager(void *initialAddress, size_t size) {
 }
 
 void *malloc(size_t size) {
-    printString((uint8_t *)"Malloc\n", WHITE);
     // Verificar si el tamaño solicitado es 0
     if (size == 0) return NULL;
 
@@ -311,6 +311,7 @@ void *malloc(size_t size) {
 }
 
 void free(void *ptr) {
+    printString((uint8_t *)"Free\n", WHITE);
     if (!ptr) return;  // Si el puntero es NULL, simplemente regresar
 
     // Convertir el puntero al bloque que lo precede
