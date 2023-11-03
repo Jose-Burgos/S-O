@@ -2,6 +2,7 @@
 #include <keyboardDriver.h>
 #include <interrupts.h>
 #include <videoDriver.h>
+#include "include/scheduler.h"
 
 #define BUF_SIZE 55
 #define CTRL 31
@@ -42,15 +43,24 @@ void saveKey(uint8_t c){
     case 0x1D:
         ctrl = 1;
         break;
-    default:
-        if (shift && c <= 128) {
-            buf.keys[buf.count++] = getKey(c) + ('A' - 'a') * shift;
-        }
+    case 0xE0:
+    case 0x0:
+        ctrl = 0;
         break;
     }
     if (c > 128)
         return;
-    buf.keys[buf.count++] = getKey(c) + ('A'-'a')*shift;
+
+    if (ctrl && getKey(c) == 'c') {
+        ctrl = 0;
+        processP p = getCurrentProcess();
+        killCurrentProcess();
+        processReady(p->parent_pid);
+        return;
+    }
+
+    buf.keys[buf.count++] = getKey(c) + ('A'-'a') * shift;
+    
 }
 
 uint32_t readBuf(char * str, uint32_t count){
