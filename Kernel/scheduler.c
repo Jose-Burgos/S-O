@@ -15,7 +15,7 @@ void idle() {
 }
 
 void init_scheduler() {
-    nodeP first = allocMemory(sizeof(node));
+    nodeP first = malloc(sizeof(node));
     if(first==NULL) {
        printString((uint8_t *)"MemError", RED);
         return;
@@ -61,7 +61,7 @@ uint64_t addProcess(char *name, char **argv, void *entryPoint, uint64_t priority
 }
 
 static nodeP insertNode(processP process) {
-    nodeP new = allocMemory(sizeof(node));
+    nodeP new = malloc(sizeof(node));
     if(new == NULL)     
     {
         printString((uint8_t *)"MemError", RED);

@@ -24,6 +24,7 @@ EXTERN syscallDispatcher
 
 EXTERN saveKey
 EXTERN timer_handler
+EXTERN schedule
 
 EXTERN sys_write
 EXTERN sys_read
@@ -164,6 +165,9 @@ picSlaveMask:
 _irq00Handler:
     pushState
     call timer_handler
+    mov rdi, rsp
+    call schedule
+    mov rsp, rax
     mov al, 20h
     out 20h, al
 
