@@ -2,11 +2,11 @@
 #define _PROCESS_H_
 
 #include <stdint.h>
-#include "MemoryManager.h"
+#include <MemoryManager.h>
 
 #define PID_MUTEX ""
 
-#define STACK_SIZE 4000
+#define STACK_SIZE 4000 //CHEQUEAR
 
 typedef enum { READY = 0, RUNNING, BLOCKED, NEW, KILLED } states;
 
@@ -18,6 +18,8 @@ typedef struct process {
     uint64_t pid;    
     uint64_t priority;
     uint64_t SP; //stack pointer
+    uint64_t children;
+    uint64_t parent_pid;
 } process;
 
 typedef struct process * processP;

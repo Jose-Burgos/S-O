@@ -10,7 +10,8 @@ char *strcpy(char *dest, const char *src);
 int strlen(char *str);
 
 char *cpuVendor(char *result);
-
 char keyPressed(void);
+
+int strlength(char* str);
 
 #endif

@@ -24,6 +24,6 @@ stackFrame createStack(void *entryPoint, void *stackBase, uint64_t argc, char **
     sf.eflags = 0x202;
     sf.sp = (uint64_t)stackBase;
     sf.ss = 0x0;
-    sf.returnAddress = (uint64_t)&killCurrentProcess; //FALTA LA IMPLEMENTACION DE ESTA RUTINA
+    sf.returnAddress = (uint64_t)&killCurrentProcess;
     return sf;
 }

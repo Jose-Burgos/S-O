@@ -170,3 +170,7 @@ void sys_free(void * mem) {
     free(mem);
 }
 
+void sys_memory_status(info_Mem * info) {
+    getInfoMem(info);
+}
+

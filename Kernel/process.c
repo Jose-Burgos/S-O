@@ -1,6 +1,8 @@
 #include "process.h"
 #include "lib.h"
 #include "stack.h"
+#include <scheduler.h>
+#include <semaphore.h>
 
 uint64_t current_pid = 0;
 
@@ -9,11 +11,11 @@ char **copy_args(int argc, char **argv);
 void free_args(char **argv);
 
 processP createProcess(char *name, char **argv, void *entryPoint, uint64_t priority) {
-    processP p = allocMemory(sizeof(process));
+    processP p = malloc(sizeof(process));
     if(p == NULL) {
         return NULL;
     }
-    void *stack = allocMemory(STACK_SIZE);
+    void *stack = malloc(STACK_SIZE);
     if(stack == NULL) {
         free(p);
         return NULL;
@@ -22,14 +24,21 @@ processP createProcess(char *name, char **argv, void *entryPoint, uint64_t prior
     p->state = NEW;
     int argc = count_argv(argv);
     p->argv = copy_args(argc,argv);
+
     char *stackBase = (char *)stack + STACK_SIZE - sizeof(uint64_t);
     stackFrame sf = createStack(entryPoint, stackBase, argc, p->argv);
     memcpy((char *)stack + STACK_SIZE - sizeof(stackFrame), &sf, sizeof(stackFrame));
+
     p->stack = stack;
-    p->SP = (uint64_t)stack + STACK_SIZE - sizeof(stackFrame);
+    p->children = 0;
     p->priority = priority;
-    p->pid = current_pid;
-    current_pid++;
+
+    sem_wait(PID_MUTEX);
+    p->pid = current_pid++;
+    sem_post(PID_MUTEX);
+    p->parent_pid = getCurrentPID();
+    p->SP = (uint64_t)stack + STACK_SIZE - sizeof(stackFrame);
+
     return p;
 }
 
@@ -43,7 +52,9 @@ void freeProcess(processP p) {
 }
 
 void wait_pid() {
-    //
+    if(getCurrentProcess()->children > 0) {
+        blockCurrentProcess();
+    }
 }
 
 
@@ -56,12 +67,12 @@ uint64_t count_argv(char **argv) {
 }
 
 char **copy_args(int argc, char **argv) {
-    char **toReturn = allocMemory((argc + 1)*sizeof(char *));
+    char **toReturn = malloc((argc + 1)*sizeof(char *));
     if(toReturn= NULL) {
         return NULL;
     }
     for(int i=0; i<argc; i++) {
-        toReturn[i] = allocMemory(strlen(argv[i]) + 1);
+        toReturn[i] = malloc(strlen(argv[i]) + 1);
         if(toReturn[i] == NULL) {
             for(int j=0; j<i; j++) {
                 free(toReturn[j]);

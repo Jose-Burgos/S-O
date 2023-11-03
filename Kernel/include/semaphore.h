@@ -11,6 +11,10 @@
 #define ERROR -1
 #define NO_PID -1
 
+#define SCHEDULER_SEM "SCHEDULER_MUTEX"
+#define CHILDREN_SEM "CHILDREN_MUTEX"
+#define PID_SEM "PID_MUTEX"
+
 typedef struct
 {
     int sem_id;

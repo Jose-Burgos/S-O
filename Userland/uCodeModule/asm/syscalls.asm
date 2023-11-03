@@ -14,6 +14,7 @@ GLOBAL sys_inforeg
 GLOBAL sys_beep
 GLOBAL sys_malloc
 GLOBAL sys_free
+GLOBAL sys_memorystatus
 
 ; syscall 0x00
 sys_write:
@@ -113,5 +114,12 @@ sys_malloc:
 ; syscall 0x0F
 sys_free:
     mov rax, 0x0F
+    int 0x80
+    ret
+
+; syscall 0x10
+sys_memorystatus:
+    mov rax, 0x10
+    mov r10, rcx
     int 0x80
     ret

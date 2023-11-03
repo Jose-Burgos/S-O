@@ -421,3 +421,11 @@ void * malloc(unsigned int memSize) {
 void free(void * ptr) {
 	sys_free(ptr);
 }
+
+void memStatus() {
+	info_mem info;
+	sys_memorystatus(&info);
+	printf("Free memory: %d bytes\n", info.free);
+	printf("Allocated memory: %d bytes\n", info.allocated);
+	printf("Total memory: %d bytes\n", info.total);
+}

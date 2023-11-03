@@ -7,6 +7,9 @@ GLOBAL getMonth
 GLOBAL getYear
 GLOBAL inb
 GLOBAL outb
+GLOBAL _cmpxchg
+GLOBAL _xchg
+GLOBAL _forceScheduler
 
 section .text
 	
@@ -155,3 +158,8 @@ _xchg:
 	mov rax, rsi 
 	xchg [rdi], rax 
 	ret
+
+_forceScheduler:
+    int 20h
+    sti
+    ret
