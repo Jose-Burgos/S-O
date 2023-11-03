@@ -33,7 +33,7 @@ processP createProcess(char *name, char **argv, void *entryPoint, uint64_t prior
     p->children = 0;
     p->priority = priority;
 
-    sem_wait(PID_MUTEX);
+    sem_wait(PID_MUTEX); // TODO: sync not tested
     p->pid = current_pid++;
     sem_post(PID_MUTEX);
     p->parent_pid = getCurrentPID();

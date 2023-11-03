@@ -174,7 +174,6 @@ void sys_memory_status(info_Mem * info) {
     getInfoMem(info);
 }
 
-
 void sys_exec(char *name,  char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag) {
     addProcess(name, argv, entryPoint, priority, fg_flag);
 }

@@ -43,7 +43,12 @@ EXTERN sys_beep
 EXTERN sys_malloc
 EXTERN sys_free
 EXTERN sys_memory_status
-
+EXTERN sys_exec
+EXTERN sys_kill_process
+EXTERN sys_block_process
+EXTERN sys_process_ready
+EXTERN sys_get_pid
+EXTERN sys_wait_pid
 
 SECTION .text
 
@@ -266,6 +271,24 @@ syscallINTHandler:
     cmp rax, 0x10
     je .memory_status
 
+    cmp rax, 0x11
+    je .sys_exec
+
+    cmp rax, 0x12
+    je .sys_kill_process
+
+    cmp rax, 0x13
+    je .sys_block_process
+
+    cmp rax, 0x14
+    je .sys_process_ready
+
+    cmp rax, 0x15
+    je .sys_get_pid
+
+    cmp rax, 0x16
+    je .sys_wait_pid
+
     jmp .end
 
 .write:
@@ -334,6 +357,30 @@ syscallINTHandler:
 
 .memory_status:
         call sys_memory_status
+        jmp .end
+
+.sys_exec:
+        call sys_exec
+        jmp .end
+
+.sys_kill_process:
+        call sys_kill_process
+        jmp .end
+
+.sys_block_process:
+        call sys_block_process
+        jmp .end
+
+.sys_process_ready:
+        call sys_process_ready
+        jmp .end
+
+.sys_get_pid:
+        call sys_get_pid
+        jmp .end
+
+.sys_wait_pid:
+        call sys_wait_pid
         jmp .end
 
 .end:

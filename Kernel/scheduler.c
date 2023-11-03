@@ -2,7 +2,7 @@
 #include <process.h>
 #include <videoDriver.h>
 #include <syscallManager.h>
-#include <semaphore.h>
+#include "include/semaphore.h"
 
 nodeP root = NULL;
 nodeP currentNode = NULL;
@@ -214,7 +214,7 @@ static void removeNode(nodeP n) {
     nodeP parent = findNode(currentNode->p->parent_pid);
     if(parent != NULL) {
 
-        sem_wait(CHILDREN_SEM);
+        sem_wait(CHILDREN_SEM); // TODO: sync not tested
         if(--parent->p->children == 0) {
             processReady(parent->p->pid);
         }
