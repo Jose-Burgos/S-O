@@ -4,28 +4,6 @@
 static info_Mem infoMem;
 
 #ifdef BUDDY
-
-#define TREE_HEIGHT 15
-#define BLOCK_SIZE 512
-#define BLOCK_LIMIT (1 << (TREE_HEIGHT - 1))
-#define SIZE(level) ((1 << (level)) * BLOCK_SIZE)
-#define IS_POW2(x) (((x) != 0) && (((x) & ((x)-1)) == 0))
-
-typedef struct Block {
-    size_t size;
-    size_t level;
-    struct Block *next;
-    struct Block *prev;
-} Block;
-
-typedef struct BuddyInfo {
-    Block blocks[BLOCK_LIMIT];
-    Block *freeRow[TREE_HEIGHT];
-    size_t lvl;
-    size_t used;
-    void* start;
-} BuddyInfo;
-
 static BuddyInfo * buddy;
 
 size_t log2(size_t n); 
@@ -203,7 +181,6 @@ void mergeBuddy(Block *block_ptr) {
 #else 
 
 static MemoryManager * memoryManager;
-
 
 int initalizeMemoryManager(void *initialAddress, size_t size) {
 	// Checks for an aligned address, size and enough memory to allocate.
