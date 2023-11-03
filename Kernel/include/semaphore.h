@@ -29,9 +29,13 @@ typedef struct
 
 typedef sem_ts *p_sem;
 
+extern uint64_t _xchg(uint64_t *dest, uint64_t value);
+extern uint64_t _cmpxchg(uint64_t *dest, uint64_t value, uint64_t test);
+
 int sem_open(char *name, int value);
 int sem_wait(char *name);
 int sem_post(char *name);
 int sem_close(char *name);
 int get_sem_count();
 int get_sem_info(int idx, p_sem buffer);
+

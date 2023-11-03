@@ -22,7 +22,7 @@ processP createProcess(char *name, char **argv, void *entryPoint, uint64_t prior
     }
     p->name = name;
     p->state = NEW;
-    int argc = count_argv(argv);
+    int argc = count_args(argv);
     p->argv = copy_args(argc,argv);
 
     char *stackBase = (char *)stack + STACK_SIZE - sizeof(uint64_t);
@@ -58,7 +58,7 @@ void wait_pid() {
 }
 
 
-uint64_t count_argv(char **argv) {
+uint64_t count_args(char **argv) {
     uint64_t toReturn = 0;
     while(argv[toReturn] != NULL) {
         toReturn++;
@@ -68,11 +68,11 @@ uint64_t count_argv(char **argv) {
 
 char **copy_args(int argc, char **argv) {
     char **toReturn = malloc((argc + 1)*sizeof(char *));
-    if(toReturn= NULL) {
+    if(toReturn == NULL) {
         return NULL;
     }
     for(int i=0; i<argc; i++) {
-        toReturn[i] = malloc(strlen(argv[i]) + 1);
+        toReturn[i] = malloc(strleng(argv[i]) + 1);
         if(toReturn[i] == NULL) {
             for(int j=0; j<i; j++) {
                 free(toReturn[j]);

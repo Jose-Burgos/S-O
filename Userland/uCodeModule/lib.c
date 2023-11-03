@@ -1,5 +1,5 @@
 #include <lib.h>
-#include <syscalls.h>
+#include "include/syscalls.h"
 #include <stdarg.h>
 
 #define BUFF_SIZE 100
@@ -428,4 +428,30 @@ void memStatus() {
 	printf("Free memory: %d bytes\n", info.free);
 	printf("Allocated memory: %d bytes\n", info.allocated);
 	printf("Total memory: %d bytes\n", info.total);
+}
+
+void exec(char *name,  char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag) {
+	sys_exec(name, argv, entryPoint, priority, fg_flag);
+}
+
+void kill(uint64_t pid) {
+	sys_kill_process(pid);
+}
+
+/*          ....mmmm....             */
+void block(uint64_t pid) {
+	sys_block_process(pid);
+}
+
+void ready(uint64_t pid) {
+	sys_process_ready(pid);
+}
+/*          ....mmmm....             */
+
+uint64_t getpid() {
+	return sys_get_pid();
+}
+
+void waitpid() {
+	sys_wait_pid();
 }

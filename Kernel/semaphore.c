@@ -1,9 +1,11 @@
-#include <lib.h>
 //#include <process.h>
 //#include <scheduler.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <lib.h>
+#include "include/semaphore.h"
+#include "include/lib.h"
+#include "scheduler.h"
+#include "process.h"
 
 #define MAX_PROC 50
 #define MAX_SEMS 256
@@ -11,20 +13,6 @@
 #define OUT_OF_BOUNDS -1
 #define ERROR -1
 #define NO_PID -1
-
-typedef struct
-{
-    int sem_id;
-    char name[NAME_CHAR_LIMIT];
-    uint64_t lock; // lock
-    uint64_t value;
-    uint64_t open_count; // Counter of pending 'close' signals
-    uint64_t blocked_processes[MAX_PROC];
-    uint64_t blocked_first;
-    uint64_t blocked_last;
-} sem_ts;
-
-typedef sem_ts *p_sem;
 
 int sem_init(char *name, int value);
 int sem_open(char *name, int value);
@@ -91,10 +79,10 @@ int sem_wait(char *name) {
     while (!cond)
     {
         // Obtener el PID del proceso en ejecución.
-        int pid = get_running_pid();
+        int pid = getCurrentPID();
         
         // Deshabilita el planificador para evitar condiciones de carrera.
-        scheduler_disable();
+        disableScheduler();
         
         uint64_t last;
         do
@@ -115,14 +103,14 @@ int sem_wait(char *name) {
                    _cmpxchg(&sem->blocked_last, last - 1, last) != last)
                 ; // Se realiza una disminución atómica de 'blocked_last'.
             
-            ready_process(pid); // Desbloquea el proceso.
-            scheduler_enable(); // Vuelve a habilitar el planificador.
+            processReady(pid); // Desbloquea el proceso.
+            // scheduler_enable(); // Vuelve a habilitar el planificador.
             break; // Sale del bucle ya que ahora el semáforo está disponible.
         }
         
         // Si la condición no cambió, se habilita el planificador y se fuerza un cambio de contexto.
-        scheduler_enable();
-        _force_scheduler();
+        // scheduler_enable();
+        forceScheduler();
     }
     // Decrementa el valor del semáforo ya que el proceso actual pasará a tener el recurso.
     sem->value--;
@@ -140,7 +128,7 @@ int sem_post(char *name) {
 
     p_sem sem = &semaphores[index];
     
-    scheduler_disable();
+    disableScheduler();
     uint64_t value;
     
     do
@@ -148,7 +136,7 @@ int sem_post(char *name) {
     while (_cmpxchg(&sem->value, value + 1, value) != value);
    
     update_sem_processes(sem);
-    scheduler_enable();
+    //scheduler_enable();
     
     return 0;
 }
@@ -175,24 +163,6 @@ int get_sem_count() {
         if(is_in_use(semaphores[i].sem_id))
             count++;
     return count;
-}
-
-void update_sem_processes(p_sem sem) {
-    // Salir temprano si no hay procesos bloqueados.
-    if (sem->blocked_last == sem->blocked_first) {
-        return;
-    }
-
-    // Despertar al primer proceso bloqueado.
-    uint64_t first_idx = sem->blocked_first;
-    int pid = sem->blocked_processes[first_idx % MAX_PROC];
-    if (pid != NO_PID) { // Asegúrese de que haya un proceso para despertar.
-        if (_cmpxchg(&sem->blocked_first, first_idx + 1, first_idx) == first_idx) {
-            // Asegúrese de que el proceso todavía está esperando antes de despertarlo.
-            ready_process(pid); // Desbloquear proceso
-            sem->blocked_processes[first_idx % MAX_PROC] = NO_PID; // Limpiar la entrada
-        }
-    }
 }
 
 int get_sem_info(int index, p_sem buffer) {
@@ -236,16 +206,34 @@ int get_sem_by_name(char *name) {
     return - 1;
 }
 
-void update_sem_processes(p_sem sem)
-{
-    uint64_t index;
-    bool awake = true;
-    while (sem->blocked_last - (index = sem->blocked_first) > 0 || (awake = false)) {
-        if (_cmpxchg(&sem->blocked_first, index + 1, index) == index)
-            break;
+//void update_sem_processes(p_sem sem)
+//{
+//    uint64_t index;
+//    bool awake = true;
+//    while (sem->blocked_last - (index = sem->blocked_first) > 0 || (awake = false)) {
+//        if (_cmpxchg(&sem->blocked_first, index + 1, index) == index)
+//            break;
+//    }
+//    if (awake) {
+//        int pid = sem->blocked_processes[index % MAX_PROC];
+//        ready_process(pid);                               
+//    }
+//}
+
+void update_sem_processes(p_sem sem) {
+    // Salir temprano si no hay procesos bloqueados.
+    if (sem->blocked_last == sem->blocked_first) {
+        return;
     }
-    if (awake) {
-        int pid = sem->blocked_processes[index % MAX_PROC];
-        ready_process(pid);                               
+
+    // Despertar al primer proceso bloqueado.
+    uint64_t first_idx = sem->blocked_first;
+    int pid = sem->blocked_processes[first_idx % MAX_PROC];
+    if (pid != NO_PID) { // Asegúrese de que haya un proceso para despertar.
+        if (_cmpxchg(&sem->blocked_first, first_idx + 1, first_idx) == first_idx) {
+            // Asegúrese de que el proceso todavía está esperando antes de despertarlo.
+            processReady(pid); // Desbloquear proceso
+            sem->blocked_processes[first_idx % MAX_PROC] = NO_PID; // Limpiar la entrada
+        }
     }
 }

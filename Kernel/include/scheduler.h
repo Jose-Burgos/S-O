@@ -7,6 +7,9 @@
 
 #define QUANTUM_MAX 8
 
+extern uint64_t _xchg(uint64_t *dest, uint64_t value);
+extern uint64_t _cmpxchg(uint64_t *dest, uint64_t value, uint64_t test);
+
 typedef struct node {
     uint64_t quantums;
     processP p;
@@ -34,7 +37,7 @@ void blockCurrentProcess();
 
 void blockProcess(uint64_t pid);
 
-void processReady();
+void processReady(uint64_t pid);
 
 void printProcesses();
 

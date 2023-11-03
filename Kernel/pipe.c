@@ -1,5 +1,6 @@
 #include <pipe.h>
 #include <lib.h>
+#include "include/lib.h"
 
 int open_pipe(pipe_t* pipe) {
     for (int i = 0; i < PIPE_SIZE; i++) {
@@ -33,7 +34,7 @@ int write_pipe(pipe_t* pipe, char* buf, int len) {
         return -1;
     }
     if (len == 0) {
-        len = strlength(buf);
+        len = strleng(buf);
     }
     if (pipe->remaining > len) {
         return -1;

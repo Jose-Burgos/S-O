@@ -31,5 +31,11 @@ long sys_changeFontSize(int diff);
 void * sys_malloc(int size);
 void sys_free(void * ptr);
 void sys_memorystatus(info_mem * info);
+void sys_exec(char *name,  char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag);
+void sys_kill_process(uint64_t pid);
+void sys_block_process(uint64_t pid);
+void sys_process_ready(uint64_t pid);
+uint64_t sys_get_pid();
+void sys_wait_pid();
 
 #endif

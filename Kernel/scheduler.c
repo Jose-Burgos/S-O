@@ -3,6 +3,7 @@
 #include <videoDriver.h>
 #include <syscallManager.h>
 #include "include/semaphore.h"
+#include "include/lib.h"
 
 nodeP root = NULL;
 nodeP currentNode = NULL;
@@ -39,7 +40,7 @@ void init_scheduler() {
     }
 
     char *argv[] = {NULL};
-    first->p = creeateProcess("IDLE", argv, &idle, QUANTUM_MAX);
+    first->p = (process *)createProcess("IDLE", argv, &idle, QUANTUM_MAX);
     first->quantums = QUANTUM_MAX;
     first->p->state = RUNNING;
     first->next = first;
@@ -189,13 +190,6 @@ void blockCurrentProcess() {
     forceScheduler();
 }
 
-void processReady(uint64_t pid) {
-    nodeP aux = findNode(pid);
-    if(aux != NULL) {
-        aux->p->state = READY;
-    }
-}
-
 void killProcess(uint64_t pid) {
 
     if(currentNode->p->pid == pid) {
@@ -239,11 +233,6 @@ static nodeP findNext(nodeP candidate) {
     return findNext(candidate->next);
 }
 
-void blockCurrentProcess() {
-    currentNode->p->state = BLOCKED;
-    forceScheduler();
-}
-
 void blockProcess(uint64_t pid) {
     nodeP aux = findNode(pid);
     if(aux != NULL) {
@@ -259,7 +248,7 @@ void processReady(uint64_t pid) {
     }
 }
 
-static printNode(nodeP n) {
+static void printNode(nodeP n) {
     const char *stateStrings[] = {
         "READY",
         "RUNNING",
@@ -284,4 +273,10 @@ processP getCurrentProcess() {
 
 uint64_t getCurrentPID() {
     return currentNode != NULL ? currentNode->p->pid : 0;
+}
+
+void forceScheduler() { // TODO: not sure
+    _xchg(&pendingDisables, 0);
+    _xchg(&forceNext, 0);
+    _xchg(&forceNext, 1);
 }

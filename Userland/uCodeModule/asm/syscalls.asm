@@ -15,6 +15,12 @@ GLOBAL sys_beep
 GLOBAL sys_malloc
 GLOBAL sys_free
 GLOBAL sys_memorystatus
+GLOBAL sys_exec
+GLOBAL sys_kill_process
+GLOBAL sys_block_process
+GLOBAL sys_process_ready
+GLOBAL sys_get_pid
+GLOBAL sys_wait_pid
 
 ; syscall 0x00
 sys_write:
@@ -120,6 +126,48 @@ sys_free:
 ; syscall 0x10
 sys_memorystatus:
     mov rax, 0x10
+    mov r10, rcx
+    int 0x80
+    ret
+
+; syscall 0x11
+sys_exec:
+    mov r11, [rsp + 0x08]
+    mov rax, 0x11
+    int 0x80
+    ret
+
+; syscall 0x12
+sys_kill_process:
+    mov rax, 0x12
+    mov r10, rcx
+    int 0x80
+    ret
+
+; syscall 0x13
+sys_block_process:
+    mov rax, 0x13
+    mov r10, rcx
+    int 0x80
+    ret
+
+; syscall 0x14
+sys_process_ready:
+    mov rax, 0x14
+    mov r10, rcx
+    int 0x80
+    ret
+
+; syscall 0x15
+sys_get_pid:
+    mov rax, 0x15
+    ;mov r10, rcx
+    int 0x80
+    ret
+
+; syscall 0x16
+sys_wait_pid:
+    mov rax, 0x16
     mov r10, rcx
     int 0x80
     ret
