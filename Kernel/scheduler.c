@@ -6,8 +6,10 @@
 
 nodeP root = NULL;
 nodeP currentNode = NULL;
+nodeP foreground = NULL;
+nodeP background = NULL;
 
-uint64_t forceChange = 0;
+uint64_t forceNext = 0;
 uint64_t pendingDisables = 0;
 uint64_t nodeCount = 0;
 
@@ -57,11 +59,15 @@ uint64_t schedule(uint64_t SP) {
         currentNode->p->SP = SP;
 
         if(currentNode->p->state == RUNNING) {
-        currentNode->quantums--;
+            currentNode->quantums--;
         }
 
         if(currentNode->p->state == KILLED) {
-            removeNode(currentNode);
+            if(currentNode->p == foreground->p) {
+                killFgroundProcess();
+            } else {
+                removeNode(currentNode);
+            }
             runNext(currentNode);
             return currentNode->p->SP;
         }
@@ -70,10 +76,10 @@ uint64_t schedule(uint64_t SP) {
             runNext(currentNode->next);
         } 
 
-        else if(currentNode->quantums == 0 || forceChange) {
+        else if(currentNode->quantums == 0 || forceNext) {
             currentNode->p->state = READY;
             runNext(currentNode->next);
-            forceChange = 0;
+            forceNext = 0;
         }
     }
     return currentNode->p->SP;
@@ -89,13 +95,18 @@ void disableScheduler() {
     }
 }
 
+void forceNextSwitch() {
+    forceNext = 1;
+    forceScheduler();
+}
+
 static void runNext(nodeP from) {
     currentNode = findNext(from);
     currentNode->p->state = RUNNING;
     currentNode->quantums = currentNode->p->priority;
 }
 
-uint64_t addProcess(char *name, char **argv, void *entryPoint, uint64_t priority) {
+void addProcess(char *name, char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag) {
     disableScheduler();
 
     processP p = createProcess(name, argv, entryPoint, priority>QUANTUM_MAX?QUANTUM_MAX:priority);
@@ -106,6 +117,13 @@ uint64_t addProcess(char *name, char **argv, void *entryPoint, uint64_t priority
 
     nodeP new = insertNode(p);
     nodeCount++;
+
+    if(fg_flag) {
+        if(background == NULL) {
+            background = foreground;
+        }
+        foreground = new;
+    }
 
     if(pendingDisables > 0) {
         pendingDisables--;
@@ -124,6 +142,21 @@ static nodeP insertNode(processP process) {
     new->p = process;
     new->quantums = process->priority;
     return new;
+}
+
+void killFgroundProcess() {
+    if(background == NULL) {
+        return;
+    }
+    nodeP toKill = foreground;
+    foreground = background;
+
+    if(foreground->p->state == BLOCKED) {
+        foreground->p->state = READY;
+    }
+
+    background = NULL;
+    killProcess(toKill->p->pid);
 }
 
 

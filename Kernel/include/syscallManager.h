@@ -7,6 +7,8 @@
 #include <keyboardDriver.h>
 #include <interrupts.h>
 #include <MemoryManager.h>
+#include <scheduler.h>
+#include <process.h>
 
 #define STDIN 0
 #define STDERR 1

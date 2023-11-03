@@ -21,7 +21,7 @@ uint64_t schedule(uint64_t SP);
 
 void disableScheduler();
 
-uint64_t addProcess(char *name, char **argv, void *entryPoint, uint64_t priority);
+void addProcess(char *name, char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag);
 
 void changePriority(uint64_t priority, uint64_t pid);
 
@@ -32,6 +32,8 @@ void killProcess(uint64_t pid);
 
 void blockCurrentProcess();
 
+void blockProcess(uint64_t pid);
+
 void processReady();
 
 void printProcesses();
@@ -41,6 +43,10 @@ processP getCurrentProcess();
 uint64_t getCurrentPID();
 
 void forceScheduler();
+
+void killFgroundProcess();
+
+void fgroundProcessReady();
 
 uint64_t _xchg(uint64_t *dest, uint64_t value);
 

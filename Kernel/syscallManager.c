@@ -174,3 +174,27 @@ void sys_memory_status(info_Mem * info) {
     getInfoMem(info);
 }
 
+
+void sys_exec(char *name,  char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag) {
+    addProcess(name, argv, entryPoint, priority, fg_flag);
+}
+
+void sys_kill_process(uint64_t pid) {
+    killProcess(pid);
+}
+
+void sys_block_process(uint64_t pid) {
+    blockProcess(pid);
+}
+
+void sys_process_ready(uint64_t pid) {
+    processReady(pid);
+}
+
+uint64_t sys_get_pid() {
+    return getCurrentPID();
+}
+
+void sys_wait_pid() {
+    wait_pid();
+}
