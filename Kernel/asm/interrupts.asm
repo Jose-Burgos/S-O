@@ -49,6 +49,7 @@ EXTERN sys_block_process
 EXTERN sys_process_ready
 EXTERN sys_get_pid
 EXTERN sys_wait_pid
+EXTERN sys_yield
 
 SECTION .text
 
@@ -144,7 +145,6 @@ _hlt:
 _cli:
     cli
     ret
-
 
 _sti:
 	sti
@@ -289,6 +289,9 @@ syscallINTHandler:
     cmp rax, 0x16
     je .sys_wait_pid
 
+    cmp rax, 0x17
+    je .sys_yield
+
     jmp .end
 
 .write:
@@ -381,6 +384,10 @@ syscallINTHandler:
 
 .sys_wait_pid:
         call sys_wait_pid
+        jmp .end
+
+.sys_yield:
+        call sys_yield
         jmp .end
 
 .end:

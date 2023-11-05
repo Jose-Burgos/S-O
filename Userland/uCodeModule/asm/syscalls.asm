@@ -21,6 +21,7 @@ GLOBAL sys_block_process
 GLOBAL sys_process_ready
 GLOBAL sys_get_pid
 GLOBAL sys_wait_pid
+GLOBAL sys_yield
 
 ; syscall 0x00
 sys_write:
@@ -161,13 +162,18 @@ sys_process_ready:
 ; syscall 0x15
 sys_get_pid:
     mov rax, 0x15
-    ;mov r10, rcx
     int 0x80
     ret
 
 ; syscall 0x16
 sys_wait_pid:
     mov rax, 0x16
+    mov r10, rcx
+    int 0x80
+    ret
+
+sys_yield:
+    mov rax, 0x17
     mov r10, rcx
     int 0x80
     ret

@@ -90,7 +90,9 @@ void disableScheduler() {
     int count;
     while(1) {
         count = pendingDisables;
+        printf("count: %d, pendingDisables: %d\n", count, pendingDisables);
         if(_cmpxchg(&pendingDisables, count + 1, count) != count) {
+            printf("OK\n");
             break;
         }
     }
@@ -276,7 +278,6 @@ uint64_t getCurrentPID() {
 }
 
 void forceScheduler() { // TODO: not sure
-    _xchg(&pendingDisables, 0);
-    _xchg(&forceNext, 0);
-    _xchg(&forceNext, 1);
+    forceNext = 1;
+    _forceScheduler();
 }
