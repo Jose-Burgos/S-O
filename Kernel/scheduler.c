@@ -88,12 +88,9 @@ uint64_t schedule(uint64_t SP) {
 
 void disableScheduler() {
     int count;
-    while(1) {
+    do {
         count = pendingDisables;
-        if(_cmpxchg(&pendingDisables, count + 1, count) != count) {
-            break;
-        }
-    }
+    } while (_cmpxchg(&pendingDisables, count + 1, count) != count);
 }
 
 void forceNextSwitch() {
