@@ -10,9 +10,9 @@ int pipeRead(int index, char *buff, int n) {
     
     pipe_t pipe = pipes[index];
     //Me aseguro que solo haya un proceso para leer del pipe a la vez
-    blockProcPipe(pipe.rProcesses, getCurrentPID());
+    blockProcPipe(pipe.rPids, getCurrentPID());
     sem_wait(pipe.name);
-    freeProcPipe(pipe.wProcesses, getCurrentPID());
+    freeProcPipe(pipe.wPids, getCurrentPID());
 
     int i;
     //Verifico de no llegar al ultimo caracter del buffer para poder terminar en /0, a su vez no haber llegado al final la data (-1), y que la pos del read este por detras de escritura.
@@ -38,9 +38,9 @@ int pipeWrite(int index, char *buff, int n) {
         return - 1;
     
     pipe_t pipe = pipes[index];
-    blockProcPipe(pipe.wProcesses, getCurrentPID());
+    blockProcPipe(pipe.wPids, getCurrentPID());
     sem_wait(pipe.name);
-    freeProcPipe(pipe.wProcesses, getCurrentPID());
+    freeProcPipe(pipe.wPids, getCurrentPID());
 
     int i;
     for(i = 0; i < n && buff[i] != 0 && (pipe.poswrite) != (pipe.posread + 1); i++)
@@ -60,14 +60,15 @@ int pipeOpen(const char* name) {
     if(index == - 1)
         return - 1;
 
+    pipe_t pipe = pipes[index];
     //Inicializacion de los campos del pipe 
-    strcpy(pipes[index].name, name);
-    pipes[index].fd = index + INITIAL_FD;
-    pipes[index].initialized = 1;
-    pipes[index].in_use = 0;
-    pipes[index].posread = 0;
-    pipes[index].poswrite = 0;
-    cleanData(pipes[index].data, PIPE_BUFFER_SIZE);
+    strcpy(pipe.name, name);
+    pipe.fd = index + INITIAL_FD;
+    pipe.initialized = 1;
+    pipe.in_use = 0;
+    pipe.posread = 0;
+    pipe.poswrite = 0;
+    cleanData(pipe.data, PIPE_BUFFER_SIZE);
 
     //Inicializacion del semaforo
     sem_open(name, 1);
@@ -78,19 +79,20 @@ int pipeOpen(const char* name) {
 void pipeClose(int index) {
     if(pipes[index].initialized != 1)
         exit(1);
+    pipe_t pipe = pipes[index];    
 
-    sem_close(pipes[index].name);
-    cleanData(pipes[index].data, PIPE_BUFFER_SIZE);
-    cleanData(pipes[index].name, MAX_PIPE_NAME_LENGTH);
+    sem_close(pipe.name);
+    cleanData(pipe.data, PIPE_BUFFER_SIZE);
+    cleanData(pipe.name, MAX_PIPE_NAME_LENGTH);
     
     for(int i = 0 ; i < MAX_PROCESSES_PER_PIPE; i++) {
-        pipes[index].wProcesses[i] = - 1;
-        pipes[index].rProcesses[i] = - 1;
+        pipe.wPids[i] = - 1;
+        pipe.rPids[i] = - 1;
     }
 
-    pipes[index].posread = 0;
-    pipes[index].poswrite = 0;
-    pipes[index].initialized = 0;
+    pipe.posread = 0;
+    pipe.poswrite = 0;
+    pipe.initialized = 0;
     return;
 }
 
