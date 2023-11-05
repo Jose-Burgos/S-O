@@ -273,7 +273,6 @@ uint64_t getCurrentPID() {
 }
 
 void forceScheduler() { // TODO: not sure
-    _xchg(&pendingDisables, 0);
-    _xchg(&forceNext, 0);
-    _xchg(&forceNext, 1);
+    forceNext = 1;
+    _forceScheduler();
 }

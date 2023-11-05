@@ -41,5 +41,6 @@ void block(uint64_t pid);
 void ready(uint64_t pid);
 uint64_t getpid();
 void waitpid();
+void yield();
 
 #endif

@@ -197,3 +197,7 @@ uint64_t sys_get_pid() {
 void sys_wait_pid() {
     wait_pid();
 }
+
+void sys_yield() {
+    forceScheduler();
+}

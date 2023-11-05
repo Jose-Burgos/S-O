@@ -455,3 +455,7 @@ uint64_t getpid() {
 void waitpid() {
 	sys_wait_pid();
 }
+
+void yield() {
+	sys_yield();
+}

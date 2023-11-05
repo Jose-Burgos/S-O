@@ -37,5 +37,6 @@ void sys_block_process(uint64_t pid);
 void sys_process_ready(uint64_t pid);
 uint64_t sys_get_pid();
 void sys_wait_pid();
+void sys_yield();
 
 #endif

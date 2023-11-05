@@ -27,6 +27,7 @@
 #define PRINTMEM_COMMAND "printmem"
 #define PRINT_HEAP_STATUS_COMMAND "mem"
 #define TEST_MM_COMMAND "test-mm"
+#define PID_COMMAND "pid"
 
 #define MAX_TERMINAL_CHARS 124          // 124 = (1024/8) - 4 (number of characters that fit in one line minus the command prompt and cursor characters)
 #define HELP_MESSAGE "HELP:\n\
@@ -49,6 +50,7 @@ inforeg           - Displays the contents of all the registers at a given time.\
                     the registers will appear as if they have the value 0\n\
 printmem          - Receives a parameter in hexadecimal. Displays the next 32 bytes after the given memory direction given\n\
 mem               - Prints the status of the heap\n\
+pid               - Prints the pid of the current process\n\
 test-mm           - Tests memory manager\n"
 
 #define INCREASE 1
@@ -73,7 +75,7 @@ void helpCommand(void);
 void printNewline(void);
 void testInvalidOpException();
 void testDivideByZeroException();
-int testMemory();
+void testMemory();
 
 void printInforeg();
 void printErrorMessage(char * program, char * errorMessage);
@@ -84,7 +86,7 @@ int decreaseFontSize();
 extern void invalidOpcode();
 extern void divideZero();
 
-void shell() {
+void shell(int argc, char **argv) {
     int out = 1;
 
     while (out) {
@@ -249,11 +251,10 @@ int readBuffer(char *buf) {
         return 0;
     } else if (!strcmp(buf, PRINT_HEAP_STATUS_COMMAND)) {
         memStatus();
+    } else if (!strcmp(buf, PID_COMMAND)) {
+        printf("PID: %d\n", getpid());
     } else if (!strcmp(buf, TEST_MM_COMMAND)){
-        if (testMemory() == -1) {
-            printErrorMessage(TEST_MM_COMMAND, "Error while testing memory manager");
-            printNewline();
-            }
+        testMemory();
     } else {
         printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
         printNewline();
@@ -305,6 +306,7 @@ int decreaseFontSize(){
     return sys_changeFontSize(DECREASE);
 }
 
-int testMemory() {
-    return test_mm(1, (char*[]){"100000"});
+void testMemory() {
+    char *argv[] = {"100000"};
+    exec("test_mm", argv, &test_mm, 0, 1);
 }
