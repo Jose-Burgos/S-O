@@ -2,7 +2,7 @@
 #define _LIB_H_
 #include <stdint.h>
 #include <color.h>
-#include <syscall.h>
+#include "syscalls.h"
 
 typedef uint8_t bool;
 
@@ -42,5 +42,11 @@ void ready(uint64_t pid);
 uint64_t getpid();
 void waitpid();
 void yield();
+int sem_init(char *name, int value);
+int sem_open(char *name, int value);
+int sem_wait(char *name);
+int sem_post(char *name);
+int sem_close(char *name);
+int sem_info(int i, p_sem buffer);
 
 #endif

@@ -1,4 +1,4 @@
-#include <lib.h>
+#include "include/lib.h"
 #include "include/syscalls.h"
 #include <stdarg.h>
 
@@ -458,4 +458,28 @@ void waitpid() {
 
 void yield() {
 	sys_yield();
+}
+
+int sem_init(char *name, int value) {
+	return sys_sem_init(name, value);
+}
+
+int sem_open(char *name, int value) {
+	return sys_sem_open(name, value);
+}
+
+int sem_wait(char *name) {
+	return sys_sem_wait(name);
+}
+
+int sem_post(char *name) {
+	return sys_sem_post(name);
+}
+
+int sem_close(char *name) {
+	return sys_sem_close(name);
+}
+
+int sem_info(int i, p_sem buffer) {
+	return sys_sem_info(i, buffer);
 }

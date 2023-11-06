@@ -50,6 +50,12 @@ EXTERN sys_process_ready
 EXTERN sys_get_pid
 EXTERN sys_wait_pid
 EXTERN sys_yield
+EXTERN sys_sem_init
+EXTERN sys_sem_open
+EXTERN sys_sem_wait
+EXTERN sys_sem_post
+EXTERN sys_sem_close
+EXTERN sys_sem_info
 
 SECTION .text
 
@@ -292,6 +298,24 @@ syscallINTHandler:
     cmp rax, 0x17
     je .sys_yield
 
+    cmp rax, 0x18
+    je .sys_sem_init
+
+    cmp rax, 0x19
+    je .sys_sem_open
+
+    cmp rax, 0x1A
+    je .sys_sem_wait
+
+    cmp rax, 0x1B
+    je .sys_sem_post
+
+    cmp rax, 0x1C
+    je .sys_sem_close
+
+    cmp rax, 0x1D
+    je .sys_sem_info
+
     jmp .end
 
 .write:
@@ -388,6 +412,30 @@ syscallINTHandler:
 
 .sys_yield:
         call sys_yield
+        jmp .end
+
+.sys_sem_init
+        call sys_sem_init
+        jmp .end
+
+.sys_sem_open
+        call sys_sem_open
+        jmp .end
+
+.sys_sem_wait
+        call sys_sem_wait
+        jmp .end
+
+.sys_sem_post
+        call sys_sem_post
+        jmp .end
+
+.sys_sem_close
+        call sys_sem_close
+        jmp .end
+
+.sys_sem_info
+        call sys_sem_info
         jmp .end
 
 .end:

@@ -201,3 +201,27 @@ void sys_wait_pid() {
 void sys_yield() {
     forceScheduler();
 }
+
+int sys_sem_init(char *name, int value) {
+    return sem_init(name, value);
+}
+
+int sys_sem_open(char *name, int value) {
+    return sem_open(name, value);
+}
+
+int sys_sem_wait(char *name) {
+    return sem_wait(name);
+}
+
+int sys_sem_post(char *name) {
+    return sem_post(name);
+}
+
+int sys_sem_close(char *name) {
+    return sem_close(name);
+}
+
+int sys_sem_info(int i, p_sem buffer) {
+    return get_sem_info(i, buffer);
+}

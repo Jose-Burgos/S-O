@@ -22,6 +22,12 @@ GLOBAL sys_process_ready
 GLOBAL sys_get_pid
 GLOBAL sys_wait_pid
 GLOBAL sys_yield
+GLOBAL sys_sem_init
+GLOBAL sys_sem_open
+GLOBAL sys_sem_wait
+GLOBAL sys_sem_post
+GLOBAL sys_sem_close
+GLOBAL sys_sem_info
 
 ; syscall 0x00
 sys_write:
@@ -172,8 +178,51 @@ sys_wait_pid:
     int 0x80
     ret
 
+; syscall 0x17
 sys_yield:
     mov rax, 0x17
+    mov r10, rcx
+    int 0x80
+    ret
+
+; syscall 0x18
+sys_sem_init:
+    mov rax, 0x18
+    mov r10, rcx
+    int 0x80
+    ret
+
+; syscall 0x19
+sys_sem_open: 
+    mov rax, 0x19
+    mov r10, rcx
+    int 0x80
+    ret
+
+; syscall 0x1A
+sys_sem_wait:
+    mov rax, 0x1A
+    mov r10, rcx
+    int 0x80
+    ret
+
+; syscall 0x1B
+sys_sem_post:
+    mov rax, 0x1B
+    mov r10, rcx
+    int 0x80
+    ret
+
+; syscall 0x1C
+sys_sem_close:
+    mov rax, 0x1C
+    mov r10, rcx
+    int 0x80
+    ret
+
+; syscall 0x1D
+sys_sem_info:
+    mov rax, 0x1D
     mov r10, rcx
     int 0x80
     ret

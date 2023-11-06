@@ -9,6 +9,7 @@
 #include <MemoryManager.h>
 #include <scheduler.h>
 #include <process.h>
+#include "semaphore.h"
 
 #define STDIN 0
 #define STDERR 1
@@ -43,6 +44,12 @@ void sys_process_ready(uint64_t pid);
 uint64_t sys_get_pid();
 void sys_wait_pid();
 void sys_yield();
+int sys_sem_init(char *name, int value);
+int sys_sem_open(char *name, int value);
+int sys_sem_wait(char *name);
+int sys_sem_post(char *name);
+int sys_sem_close(char *name);
+int sys_sem_info(int i, p_sem buffer);
 
 
 #endif

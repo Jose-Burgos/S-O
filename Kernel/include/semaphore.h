@@ -1,12 +1,18 @@
-#include <lib.h>
-//#include <process.h>
-//#include <scheduler.h>
+#ifndef _SEMAPHORE_H_
+#define _SEMAPHORE_H_
+
+#include <process.h>
 #include <stdint.h>
-#include <lib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include "lib.h"
+#include "scheduler.h"
+#include "process.h"
+
 
 #define MAX_PROC 50
-#define MAX_SEMS 256
 #define NAME_CHAR_LIMIT 1024
+#define MAX_SEMS 256
 #define OUT_OF_BOUNDS -1
 #define ERROR -1
 #define NO_PID -1
@@ -15,8 +21,7 @@
 #define CHILDREN_SEM "CHILDREN_MUTEX"
 #define PID_SEM "PID_MUTEX"
 
-typedef struct
-{
+typedef struct{
     int sem_id;
     char name[NAME_CHAR_LIMIT];
     uint64_t lock; // lock
@@ -32,6 +37,7 @@ typedef sem_ts *p_sem;
 extern uint64_t _xchg(uint64_t *dest, uint64_t value);
 extern uint64_t _cmpxchg(uint64_t *dest, uint64_t value, uint64_t test);
 
+int sem_init(char *name, int value);
 int sem_open(char *name, int value);
 int sem_wait(char *name);
 int sem_post(char *name);
@@ -39,3 +45,4 @@ int sem_close(char *name);
 int get_sem_count();
 int get_sem_info(int idx, p_sem buffer);
 
+#endif

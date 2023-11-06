@@ -1,11 +1,6 @@
 //#include <process.h>
 //#include <scheduler.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include "include/semaphore.h"
-#include "include/lib.h"
-#include "scheduler.h"
-#include "process.h"
+#include "include/semaphore.h" 
 
 #define MAX_PROC 50
 #define MAX_SEMS 256
@@ -13,14 +8,6 @@
 #define OUT_OF_BOUNDS -1
 #define ERROR -1
 #define NO_PID -1
-
-int sem_init(char *name, int value);
-int sem_open(char *name, int value);
-int sem_wait(char *name);
-int sem_post(char *name);
-int sem_close(char *name);
-int get_sem_count();
-int get_sem_info(int i, p_sem buffer);
 
 sem_ts semaphores[MAX_SEMS];
 

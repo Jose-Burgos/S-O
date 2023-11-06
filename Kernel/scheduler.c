@@ -2,7 +2,7 @@
 #include <process.h>
 #include <videoDriver.h>
 #include <syscallManager.h>
-#include "include/semaphore.h"
+#include <semaphore.h>
 #include "include/lib.h"
 
 nodeP root = NULL;
