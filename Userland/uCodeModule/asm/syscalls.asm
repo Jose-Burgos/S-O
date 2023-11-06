@@ -28,6 +28,12 @@ GLOBAL sys_sem_wait
 GLOBAL sys_sem_post
 GLOBAL sys_sem_close
 GLOBAL sys_sem_info
+GLOBAL sys_sem_count
+GLOBAL sys_pipeRead 
+GLOBAL sys_pipeWrite
+GLOBAL sys_pipeClose
+GLOBAL sys_pipeOpen
+GLOBAL sys_pipesInfo
 
 ; syscall 0x00
 sys_write:
@@ -223,6 +229,48 @@ sys_sem_close:
 ; syscall 0x1D
 sys_sem_info:
     mov rax, 0x1D
+    mov r10, rcx
+    int 0x80
+    ret
+
+; syscall 0x1E
+sys_sem_count:
+    mov rax, 0x1E
+    mov r10, rcx
+    int 0x80
+    ret
+
+; syscall 0x1F
+sys_pipeRead:
+    mov rax, 0x1F
+    mov r10, rcx
+    int 0x80
+    ret
+
+; syscall 0x20
+sys_pipeWrite:
+    mov rax, 0x20
+    mov r10, rcx
+    int 0x80
+    ret
+
+; syscall 0x21
+sys_pipeClose:
+    mov rax, 0x21
+    mov r10, rcx
+    int 0x80
+    ret
+
+; syscall 0x22
+sys_pipeOpen:
+    mov rax, 0x22
+    mov r10, rcx
+    int 0x80
+    ret
+
+; syscall 0x23
+sys_pipesInfo:
+    mov rax, 0x23
     mov r10, rcx
     int 0x80
     ret

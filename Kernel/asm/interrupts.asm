@@ -56,6 +56,12 @@ EXTERN sys_sem_wait
 EXTERN sys_sem_post
 EXTERN sys_sem_close
 EXTERN sys_sem_info
+EXTERN sys_sem_count
+EXTERN sys_pipeRead
+EXTERN sys_pipeWrite
+EXTERN sys_pipeClose
+EXTERN sys_pipeOpen
+EXTERN sys_pipesInfo
 
 SECTION .text
 
@@ -316,6 +322,24 @@ syscallINTHandler:
     cmp rax, 0x1D
     je .sys_sem_info
 
+    cmp rax, 0x1E
+    je .sys_sem_count
+
+    cmp rax, 0x1F
+    je .sys_pipeRead
+
+    cmp rax, 0x20
+    je .sys_pipeWrite
+
+    cmp rax, 0x21
+    je .sys_pipeClose
+
+    cmp rax, 0x22
+    je .sys_pipeOpen
+
+    cmp rax, 0x23
+    je .sys_pipesInfo
+
     jmp .end
 
 .write:
@@ -414,28 +438,52 @@ syscallINTHandler:
         call sys_yield
         jmp .end
 
-.sys_sem_init
+.sys_sem_init:
         call sys_sem_init
         jmp .end
 
-.sys_sem_open
+.sys_sem_open:
         call sys_sem_open
         jmp .end
 
-.sys_sem_wait
+.sys_sem_wait:
         call sys_sem_wait
         jmp .end
 
-.sys_sem_post
+.sys_sem_post:
         call sys_sem_post
         jmp .end
 
-.sys_sem_close
+.sys_sem_close:
         call sys_sem_close
         jmp .end
 
-.sys_sem_info
+.sys_sem_info:
         call sys_sem_info
+        jmp .end
+
+.sys_sem_count:
+        call sys_sem_count
+        jmp .end
+
+.sys_pipeRead:
+        call sys_pipeRead
+        jmp .end
+
+.sys_pipeWrite:
+        call sys_pipeWrite
+        jmp .end
+
+.sys_pipeClose:
+        call sys_pipeClose
+        jmp .end
+
+.sys_pipeOpen:
+        call sys_pipeOpen
+        jmp .end
+
+.sys_pipesInfo:
+        call sys_pipesInfo
         jmp .end
 
 .end:

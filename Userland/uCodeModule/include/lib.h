@@ -4,8 +4,6 @@
 #include <color.h>
 #include "syscalls.h"
 
-typedef uint8_t bool;
-
 #define true 1
 #define false 0
 
@@ -48,5 +46,11 @@ int sem_wait(char *name);
 int sem_post(char *name);
 int sem_close(char *name);
 int sem_info(int i, p_sem buffer);
+int sem_count();
+int pipeRead(int index, char *buff, int n);
+int pipeWrite(int index, char *addr, int n);
+void pipeClose(int index);
+int pipeOpen(char *name);
+void pipesInfo();
 
 #endif

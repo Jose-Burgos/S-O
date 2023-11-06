@@ -1,5 +1,5 @@
-#ifndef PIPE_H_
-#define PIPE_H_
+#ifndef _PIPE_H_
+#define _PIPE_H_
 
 #include <scheduler.h>
 #include <stdint.h>
@@ -25,12 +25,12 @@ typedef struct {
     int poswrite;
 } pipe_t;
 
-typedef ssize_t (*pipe_read_write_func)(int index, char *addr, size_t n);
+// typedef ssize_t (*pipe_read_write_func)(int index, char *addr, size_t n);
 
 int pipeRead(int index, char *buff, int n);
 int pipeWrite(int index, char *addr, int n);
 void pipeClose(int index);
-int pipeOpen(const char *name);
+int pipeOpen(char *name);
 char *pipesInfo();
 
 // Additional function to initialize the pipe system if needed

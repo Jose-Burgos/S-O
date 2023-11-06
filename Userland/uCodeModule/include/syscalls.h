@@ -59,5 +59,12 @@ int sys_sem_wait(char *name);
 int sys_sem_post(char *name);
 int sys_sem_close(char *name);
 int sys_sem_info(int i, p_sem buffer);
+int sys_sem_count();
+int sys_pipeRead(int index, char *buff, int n);
+int sys_pipeWrite(int index, char *addr, int n);
+void sys_pipeClose(int index);
+int sys_pipeOpen(char *name);
+char *sys_pipesInfo();
+
 
 #endif

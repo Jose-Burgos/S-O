@@ -483,3 +483,26 @@ int sem_close(char *name) {
 int sem_info(int i, p_sem buffer) {
 	return sys_sem_info(i, buffer);
 }
+
+int sem_count() {
+	return sys_sem_count();
+}
+
+int pipeRead(int index, char *buff, int n) {
+	return sys_pipeRead(index, buff, n);
+}
+int pipeWrite(int index, char *addr, int n) {
+	return sys_pipeWrite(index, addr, n);
+}
+
+void pipeClose(int index) {
+	sys_pipeClose(index);
+}
+
+int pipeOpen(char *name) {
+	return sys_pipeOpen(name);
+}
+
+void pipesInfo() {
+	printf("%s", sys_pipesInfo());
+}

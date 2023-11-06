@@ -1,8 +1,19 @@
-#include <../include/pipe.h>
+#include "include/pipe.h"
 #include <lib.h>
 #include "include/lib.h"
 
 pipe_t pipes[MAX_PIPES];
+
+void freeProcPipe(int *processes, int currentPid);
+int pipeWrite(int index, char *buff, int n);
+int pipeRead(int index, char *buff, int n);
+int pipeOpen(char* name);
+void pipeClose(int index);
+int findPipe(const char *name);
+int nextAvailPipe();
+void cleanData(char *data, int len);
+void freeProcPipe(int *processes, int currentPid);
+void blockProcPipe(int *processes, int currentPid);
 
 int pipeRead(int index, char *buff, int n) {
     if(pipes[index].initialized == 0)
@@ -51,7 +62,7 @@ int pipeWrite(int index, char *buff, int n) {
     return i;
 }
 
-int pipeOpen(const char* name) {
+int pipeOpen(char* name) {
     int i;
     if( (i = findPipe(name))  != - 1)
         return pipes[i].fd;
@@ -78,7 +89,7 @@ int pipeOpen(const char* name) {
 
 void pipeClose(int index) {
     if(pipes[index].initialized != 1)
-        exit(1);
+        return;
     pipe_t pipe = pipes[index];    
 
     sem_close(pipe.name);
@@ -110,6 +121,7 @@ int nextAvailPipe() {
     return - 1;    
 }
 
+
 void cleanData(char *data, int len) {
     for(int i = 0; i < len; i ++)
         data[i] = 0;
@@ -140,4 +152,8 @@ void freeProcPipe(int *processes, int currentPid) {
             processReady(currentPid);
             return;
         }
+}
+
+char *pipesInfo() {
+    return pipes[0].name; // TODO: return the struct !?
 }
