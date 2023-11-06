@@ -42,10 +42,10 @@ void init_scheduler() {
     char *argv[] = {NULL};
     first->p = (process *)createProcess("IDLE", argv, &idle, QUANTUM_MAX);
     first->quantums = QUANTUM_MAX;
-    first->p->state = RUNNING;
-    first->next = first;
-    currentNode = first;
     root = first;
+    first->next = root;
+    currentNode = root;
+    currentNode->p->state = RUNNING;
     nodeCount++;
 }
 
@@ -114,7 +114,6 @@ void addProcess(char *name, char **argv, void *entryPoint, uint64_t priority, ui
     //sem_post(CHILDREN_SEM);
 
     nodeP new = insertNode(p);
-    nodeCount++;
 
     if(fg_flag) {
         if(background == NULL) {
@@ -122,6 +121,8 @@ void addProcess(char *name, char **argv, void *entryPoint, uint64_t priority, ui
         }
         foreground = new;
     }
+    
+    nodeCount++;
 
     if(pendingDisables > 0) {
         pendingDisables--;
@@ -135,15 +136,18 @@ static nodeP insertNode(processP process) {
         printString((uint8_t *)"Memory Error", RED);
         return 0;
     }
-    currentNode->next = new;
-    new->next = currentNode->next;
     new->p = process;
     new->quantums = process->priority;
+    new->next = currentNode->next;
+    currentNode->next = new;
     return new;
 }
 
 void killFgroundProcess() {
+    printf("Killing foreground process\n");
     if(background == NULL) {
+        printf("No background process\n");
+        printProcesses();
         return;
     }
     nodeP toKill = foreground;
@@ -179,6 +183,7 @@ void changePriority(uint64_t priority, uint64_t pid) {
 
 void killCurrentProcess() {
     currentNode->p->state = KILLED;
+    printProcesses();
     forceScheduler();
 }
 
@@ -257,10 +262,17 @@ static void printNode(nodeP n) {
 }
 
 void printProcesses() {
-    printNode(root);
-    for(nodeP aux = root->next; aux != root; aux = aux->next) {
+    nodeP aux = root;
+    printNode(aux);
+    aux = aux->next;
+    while (aux != root) {
         printNode(aux);
+        aux = aux->next;
     }
+    
+    //for(nodeP aux = root->next; aux != root; aux = aux->next) {
+    //    printNode(aux);
+    //}
 }
 
 processP getCurrentProcess() {

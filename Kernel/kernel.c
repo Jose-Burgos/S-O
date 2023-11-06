@@ -46,16 +46,15 @@ void *initializeKernelBinary() {
     void * startOfMem = (void *)(((uint8_t *) endOfModules + PageSize - (uint64_t) endOfModules % PageSize));
 
     initalizeMemoryManager(startOfMem, 0x100000);
+
     init_scheduler();
 
     return getStackBase();
 }
 
 int main() {
-    printString((uint8_t *)"Loading Userland\n", WHITE);
     load_idt();
     clearScreen();
-    printString((uint8_t *)"Memory Manager initialized\n", WHITE);
     ((EntryPoint) uCodeModuleAddress)();
 
     return 0;
