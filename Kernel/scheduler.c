@@ -28,9 +28,9 @@ void idle() {
 
 void init_scheduler() {
 
-    sem_open(SCHEDULER_SEM,1);
-    sem_open(CHILDREN_SEM,1);
-    sem_open(PID_MUTEX,1);
+    //sem_open(SCHEDULER_SEM,1);
+    //sem_open(CHILDREN_SEM,1);
+    //sem_open(PID_MUTEX,1);
 
     nodeP first = malloc(sizeof(node));
 
@@ -109,9 +109,9 @@ void addProcess(char *name, char **argv, void *entryPoint, uint64_t priority, ui
 
     processP p = createProcess(name, argv, entryPoint, priority>QUANTUM_MAX?QUANTUM_MAX:priority);
     
-    sem_wait(CHILDREN_SEM);
+    //sem_wait(CHILDREN_SEM);
     currentNode->p->children++;
-    sem_post(CHILDREN_SEM);
+    //sem_post(CHILDREN_SEM);
 
     nodeP new = insertNode(p);
     nodeCount++;
@@ -205,11 +205,11 @@ static void removeNode(nodeP n) {
     nodeP parent = findNode(currentNode->p->parent_pid);
     if(parent != NULL) {
 
-        sem_wait(CHILDREN_SEM); // TODO: sync not tested
+        //sem_wait(CHILDREN_SEM); // TODO: sync not tested
         if(--parent->p->children == 0) {
             processReady(parent->p->pid);
         }
-        sem_post(CHILDREN_SEM);
+        //sem_post(CHILDREN_SEM);
         nodeCount--;
 
         nodeP toFree = n->next;
@@ -254,7 +254,6 @@ static void printNode(nodeP n) {
         "KILLED"
     };
     printf("Process: %s\t ID: %d\tState: %s\t\n", n->p->name, n->p->pid, stateStrings[n->p->state]);
-    //TODO: IMPLEMENTAR PRINTF EN LIB.C
 }
 
 void printProcesses() {
@@ -272,7 +271,11 @@ uint64_t getCurrentPID() {
     return currentNode != NULL ? currentNode->p->pid : 0;
 }
 
-void forceScheduler() { // TODO: not sure
+void forceScheduler() { 
     forceNext = 1;
     _forceScheduler();
+}
+
+void ready_foreground_proc() {
+    foreground->p->state = foreground->p->state == BLOCKED ? READY : foreground->p->state;
 }

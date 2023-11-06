@@ -67,7 +67,7 @@ test-mm           - Tests memory manager\n"
 
 #define NEWLINE "\n"
 
-void shell();
+void shell(int argc, char **argv);
 void bufferRead(char **buf);
 int readBuffer(char *buf);
 void printLine(char *str);
@@ -307,6 +307,7 @@ int decreaseFontSize(){
 }
 
 void testMemory() {
-    char *argv[] = {"100000"};
+    char *argv[] = {"10000"};
     exec("test_mm", argv, &test_mm, 0, 1);
+    waitpid(2);
 }

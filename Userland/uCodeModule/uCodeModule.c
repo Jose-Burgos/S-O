@@ -3,16 +3,19 @@
 #include <timer.h>
 #include <lib.h>
 
-void shell(void);
+void shell(int argc, char ** argv);
 
 char *v = (char *)0xB8000 + 79 * 2;
 
 int main() {
     clear();
+    char *argv[] = {NULL};
 
-    //yield();
-    //char *argv[] = {"shell"};
-    //exec("shell", argv, &shell, 0, 1);
-    shell();
+    exec("shell", argv, &shell, 0, 1);
+    
+    while (1) { // INIT process
+        shortSleep(1);
+    }
+    
     return 0;
 }
