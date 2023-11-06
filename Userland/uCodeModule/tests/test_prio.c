@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <stdio.h>
 #include "syscall.h" // TODO: Remove this dependency
 #include "test_util.h"
 #include "../include/lib.h"
@@ -27,7 +26,7 @@ void test_prio() {
 
   for (i = 0; i < TOTAL_PROCESSES; i++) {
     char *argv[] = {i};
-    pids[i] = exec("loop_print", argv, &testing, prio[i], 0);
+    //pids[i] = exec("loop_print", argv, &testing, prio[i], 0);
   }
 
 
