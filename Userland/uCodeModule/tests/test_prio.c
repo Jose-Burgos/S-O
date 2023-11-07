@@ -1,7 +1,7 @@
 #include <stdint.h>
-#include "syscall.h" // TODO: Remove this dependency
-#include "test_util.h"
-#include "../include/lib.h"
+//#include "syscall.h" // TODO: Remove this dependency
+//#include "test_util.h"
+#include <../include/lib.h>
 
 #define MINOR_WAIT 1000000 // TODO: Change this value to prevent a process from flooding the screen
 #define WAIT 10000000      // TODO: Change this value to make the wait long enough to see theese processes beeing run at least twice
@@ -26,9 +26,8 @@ void test_prio() {
 
   for (i = 0; i < TOTAL_PROCESSES; i++) {
     char *argv[] = {i};
-    //pids[i] = exec("loop_print", argv, &testing, prio[i], 0);
+    pids[i] = exec("loop_print", argv, &testing, prio[i], 0);
   }
-
 
   bussy_wait(WAIT);
   printf("\nCHANGING PRIORITIES...\n");

@@ -430,8 +430,8 @@ void memStatus() {
 	printf("Total memory: %d bytes\n", info.total);
 }
 
-void exec(char *name,  char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag) {
-	sys_exec(name, argv, entryPoint, priority, fg_flag);
+uint64_t exec(char *name,  char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag) {
+	return sys_exec(name, argv, entryPoint, priority, fg_flag);
 }
 
 void kill(uint64_t pid) {

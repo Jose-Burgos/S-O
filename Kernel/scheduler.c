@@ -104,7 +104,7 @@ static void runNext(nodeP from) {
     currentNode->quantums = currentNode->p->priority;
 }
 
-void addProcess(char *name, char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag) {
+uint64_t addProcess(char *name, char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag) {
     disableScheduler();
 
     processP p = createProcess(name, argv, entryPoint, priority>QUANTUM_MAX?QUANTUM_MAX:priority);
@@ -127,6 +127,8 @@ void addProcess(char *name, char **argv, void *entryPoint, uint64_t priority, ui
     if(pendingDisables > 0) {
         pendingDisables--;
     }
+
+    return p->pid;
 }
 
 static nodeP insertNode(processP process) {

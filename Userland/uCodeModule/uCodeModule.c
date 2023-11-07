@@ -12,7 +12,7 @@ int main() {
     char *argv[] = {NULL};
 
     exec("shell", argv, &shell, 0, 1);
-    
+
     while (1) { // INIT process
         shortSleep(1);
     }

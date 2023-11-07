@@ -24,7 +24,7 @@ uint64_t schedule(uint64_t SP);
 
 void disableScheduler();
 
-void addProcess(char *name, char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag);
+uint64_t addProcess(char *name, char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag);
 
 void changePriority(uint64_t priority, uint64_t pid);
 

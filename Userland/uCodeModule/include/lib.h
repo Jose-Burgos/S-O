@@ -33,7 +33,7 @@ void beep(int frequency);
 void * malloc(unsigned int memSize);
 void free(void * ptr);
 void memStatus();
-void exec(char *name,  char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag);
+uint64_t exec(char *name,  char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag);
 void kill(uint64_t pid);
 void block(uint64_t pid);
 void ready(uint64_t pid);
