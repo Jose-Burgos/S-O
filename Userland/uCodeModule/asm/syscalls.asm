@@ -35,6 +35,7 @@ GLOBAL sys_pipeClose
 GLOBAL sys_pipeOpen
 GLOBAL sys_pipesInfo
 GLOBAL sys_print_processes
+GLOBAL sys_nice
 
 ; syscall 0x00
 sys_write:
@@ -279,5 +280,12 @@ sys_pipesInfo:
 ; syscall 0x24
 sys_print_processes:
     mov rax, 0x24
+    int 0x80
+    ret
+
+; syscall 0x25
+sys_nice:
+    mov rax, 0x25
+    mov r10, rcx
     int 0x80
     ret

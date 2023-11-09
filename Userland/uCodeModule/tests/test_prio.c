@@ -1,7 +1,5 @@
-#include <stdint.h>
-//#include "syscall.h" // TODO: Remove this dependency
 #include "test_util.h"
-#include <../include/lib.h>
+#include "../include/lib.h"
 
 #define MINOR_WAIT 1000000 // TODO: Change this value to prevent a process from flooding the screen
 #define WAIT 10000000      // TODO: Change this value to make the wait long enough to see theese processes beeing run at least twice
@@ -13,47 +11,40 @@
 
 int64_t prio[TOTAL_PROCESSES] = {LOWEST, MEDIUM, HIGHEST};
 
-void testing(int i) {
-  for (size_t i = 0; i < 100000; i++) {
-    shortSleep(5);
-    printf("%d\n", i);
-  }
-}
-
 void test_prio() {
   int64_t pids[TOTAL_PROCESSES];
   uint64_t i;
+  char *argv[] = {NULL};
 
   for (i = 0; i < TOTAL_PROCESSES; i++) {
-    char *argv[] = {i};
-    pids[i] = exec("loop_print", argv, &testing, prio[i], 0);
+    pids[i] = exec("loop_print", argv, &endless_loop_print, prio[i], 0);
   }
-
+  
   bussy_wait(WAIT);
   printf("\nCHANGING PRIORITIES...\n");
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
-    my_nice(pids[i], prio[i]);
+    nice(pids[i], prio[i]);
 
   bussy_wait(WAIT);
   printf("\nBLOCKING...\n");
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
-    my_block(pids[i]);
+    block(pids[i]);
 
   printf("CHANGING PRIORITIES WHILE BLOCKED...\n");
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
-    my_nice(pids[i], MEDIUM);
+    nice(pids[i], MEDIUM);
 
   printf("UNBLOCKING...\n");
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
-    my_unblock(pids[i]);
+    ready(pids[i]);
 
   bussy_wait(WAIT);
   printf("\nKILLING...\n");
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
-    my_kill(pids[i]);
+    kill(pids[i]);
 }

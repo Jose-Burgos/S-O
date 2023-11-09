@@ -414,6 +414,8 @@ void beep(int frequency) {
 	sys_beep(frequency);
 }
 
+// --- Memory ---
+
 void * malloc(unsigned int memSize) {
     return sys_malloc(memSize);
 }
@@ -429,6 +431,8 @@ void memStatus() {
 	printf("Allocated memory: %d bytes\n", info.allocated);
 	printf("Total memory: %d bytes\n", info.total);
 }
+
+// --- Processes ---
 
 uint64_t exec(char *name,  char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag) {
 	return sys_exec(name, argv, entryPoint, priority, fg_flag);
@@ -464,6 +468,12 @@ void ps() {
 	sys_print_processes();
 }
 
+void nice(long priority, long pid) {
+	sys_nice(priority, pid);
+}
+
+// --- Semaphores ---
+
 int sem_init(char *name, int value) {
 	return sys_sem_init(name, value);
 }
@@ -491,6 +501,8 @@ int sem_info(int i, p_sem buffer) {
 int sem_count() {
 	return sys_sem_count();
 }
+
+// --- Pipes ---
 
 int pipeRead(int index, char *buff, int n) {
 	return sys_pipeRead(index, buff, n);

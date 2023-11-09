@@ -43,9 +43,11 @@ long sys_timedRead(unsigned char fd, char * s, int count, int millis);
 long sys_drawRectangle(int x, int y, int width, int height, Color color);
 long sys_inforeg(long * registers);
 long sys_changeFontSize(int diff);
+// --- Memory ---
 void * sys_malloc(int size);
 void sys_free(void * ptr);
 void sys_memorystatus(info_mem * info);
+// --- Processes ---
 uint64_t sys_exec(char *name,  char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag);
 uint64_t sys_kill_process(uint64_t pid);
 uint64_t sys_block_process(uint64_t pid);
@@ -54,6 +56,8 @@ uint64_t sys_get_pid();
 void sys_wait_pid();
 void sys_yield();
 void sys_print_processes();
+void sys_nice(long priority, long pid);
+// --- Semaphores ---
 int sys_sem_init(char *name, int value);
 int sys_sem_open(char *name, int value);
 int sys_sem_wait(char *name);
@@ -61,6 +65,7 @@ int sys_sem_post(char *name);
 int sys_sem_close(char *name);
 int sys_sem_info(int i, p_sem buffer);
 int sys_sem_count();
+// --- Pipes ---
 int sys_pipeRead(int index, char *buff, int n);
 int sys_pipeWrite(int index, char *addr, int n);
 void sys_pipeClose(int index);

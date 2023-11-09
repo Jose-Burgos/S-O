@@ -162,6 +162,8 @@ uint64_t sys_changeFontSize(uint32_t size) {
     return changeFontSize(size);
 }
 
+// --- Memory ---
+
 void * sys_malloc(uint64_t memSize) {
     return malloc(memSize);
 }
@@ -173,6 +175,8 @@ void sys_free(void * mem) {
 void sys_memory_status(info_Mem * info) {
     getInfoMem(info);
 }
+
+// --- Process ---
 
 uint64_t sys_exec(char *name,  char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag) {
     return addProcess(name, argv, entryPoint, priority, fg_flag);
@@ -206,6 +210,12 @@ void sys_print_processes() {
     printProcesses();
 }
 
+void sys_nice(uint64_t priority, uint64_t pid) {
+    changePriority(priority, pid);
+}
+
+// --- SEM ---
+
 int sys_sem_init(char *name, int value) {
     return sem_init(name, value);
 }
@@ -233,6 +243,8 @@ int sys_sem_info(int i, p_sem buffer) {
 int sys_sem_count() {
     return get_sem_count();
 }
+
+// --- PIPE ---
 
 int sys_pipeRead(int index, char *buff, int n) {
     return pipeRead(index, buff, n);

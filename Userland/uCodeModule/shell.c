@@ -30,6 +30,7 @@
 #define TEST_PROCESSES_COMMAND "test-processes"
 #define PID_COMMAND "pid"
 #define PS_COMMAND "ps"
+#define TEST_PRIORITY_COMMAND "test-priority"
 
 #define MAX_TERMINAL_CHARS 124          // 124 = (1024/8) - 4 (number of characters that fit in one line minus the command prompt and cursor characters)
 #define HELP_MESSAGE "HELP:\n\
@@ -54,7 +55,8 @@ printmem          - Receives a parameter in hexadecimal. Displays the next 32 by
 mem               - Prints the status of the heap\n\
 pid               - Prints the pid of the current process\n\
 ps                - Prints the status of all processes\n\
-test-processes      - Tests process creation\n\
+test-processes    - Tests process creation\n\
+test-priority     - Tests process priority\n\
 test-mm           - Tests memory manager\n"
 
 #define INCREASE 1
@@ -81,6 +83,7 @@ void testInvalidOpException();
 void testDivideByZeroException();
 void testMemory();
 void ProcessesTest();
+void PrioTest();
 
 void printInforeg();
 void printErrorMessage(char * program, char * errorMessage);
@@ -257,6 +260,8 @@ int readBuffer(char *buf) {
         ps();
     } else if (!strcmp(buf, TEST_PROCESSES_COMMAND)){
         ProcessesTest();
+    } else if (!strcmp(buf, TEST_PRIORITY_COMMAND)){
+        PrioTest();
     } else if (!strcmp(buf, PRINT_HEAP_STATUS_COMMAND)) {
         memStatus();
     } else if (!strcmp(buf, PID_COMMAND)) {
@@ -323,5 +328,11 @@ void testMemory() {
 void ProcessesTest() {
     char *argv[] = {"100"};
     int pid = exec("test_processes", argv, &test_processes, 0, 1);
+    waitpid(pid);
+}
+
+void PrioTest() {
+    char *argv[] = {NULL};
+    int pid = exec("test_priority", argv, &test_prio, 0, 1);
     waitpid(pid);
 }

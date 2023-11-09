@@ -63,6 +63,7 @@ EXTERN sys_pipeWrite
 EXTERN sys_pipeClose
 EXTERN sys_pipeOpen
 EXTERN sys_pipesInfo
+EXTERN sys_nice
 
 SECTION .text
 
@@ -344,6 +345,9 @@ syscallINTHandler:
     cmp rax, 0x24
     je .sys_print_processes
 
+    cmp rax, 0x25
+    je .sys_nice
+
     jmp .end
 
 .write:
@@ -402,6 +406,8 @@ syscallINTHandler:
         call sys_beep
         jmp .end
 
+; --- MEMORY ---
+
 .malloc:
         call sys_malloc
         jmp .end
@@ -413,6 +419,8 @@ syscallINTHandler:
 .memory_status:
         call sys_memory_status
         jmp .end
+
+; --- PROCESSES ---
 
 .sys_exec:
         call sys_exec
@@ -446,6 +454,12 @@ syscallINTHandler:
         call sys_print_processes
         jmp .end
 
+.sys_nice:
+        call sys_nice
+        jmp .end
+
+; --- SEM ---
+
 .sys_sem_init:
         call sys_sem_init
         jmp .end
@@ -473,6 +487,8 @@ syscallINTHandler:
 .sys_sem_count:
         call sys_sem_count
         jmp .end
+
+; --- PIPES ---
 
 .sys_pipeRead:
         call sys_pipeRead
