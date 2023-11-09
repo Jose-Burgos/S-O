@@ -146,10 +146,8 @@ static nodeP insertNode(processP process) {
 }
 
 void killFgroundProcess() {
-    printf("Killing foreground process\n");
     if(background == NULL) {
         printf("No background process\n");
-        printProcesses();
         return;
     }
     nodeP toKill = foreground;
@@ -185,7 +183,6 @@ void changePriority(uint64_t priority, uint64_t pid) {
 
 void killCurrentProcess() {
     currentNode->p->state = KILLED;
-    printProcesses();
     forceScheduler();
 }
 
@@ -194,7 +191,7 @@ void blockCurrentProcess() {
     forceScheduler();
 }
 
-void killProcess(uint64_t pid) {
+uint64_t killProcess(uint64_t pid) {
 
     if(currentNode->p->pid == pid) {
         killCurrentProcess();
@@ -203,9 +200,12 @@ void killProcess(uint64_t pid) {
     nodeP aux = findNode(pid);
     if(aux == NULL) {
         printString((uint8_t *)"INEXISTENT PID\n", RED);
+        return -1;
     }
     aux->p->state = KILLED;
+    uint64_t pid_killed = aux->p->pid; 
     removeNode(aux);
+    return pid_killed;
 }
 
 static void removeNode(nodeP n) {
@@ -237,19 +237,23 @@ static nodeP findNext(nodeP candidate) {
     return findNext(candidate->next);
 }
 
-void blockProcess(uint64_t pid) {
+uint64_t blockProcess(uint64_t pid) {
     nodeP aux = findNode(pid);
     if(aux != NULL) {
         aux->p->state = BLOCKED;
+        _forceScheduler();
+        return aux->p->pid; 
     }
-    forceScheduler();
+    return -1;
 }
 
-void processReady(uint64_t pid) {
+uint64_t processReady(uint64_t pid) {
     nodeP aux = findNode(pid);
     if(aux != NULL) {
         aux->p->state = READY;
+        return aux->p->pid;
     }
+    return -1;
 }
 
 static void printNode(nodeP n) {

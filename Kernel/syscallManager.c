@@ -178,16 +178,16 @@ uint64_t sys_exec(char *name,  char **argv, void *entryPoint, uint64_t priority,
     return addProcess(name, argv, entryPoint, priority, fg_flag);
 }
 
-void sys_kill_process(uint64_t pid) {
-    killProcess(pid);
+uint64_t sys_kill_process(uint64_t pid) {
+    return killProcess(pid);
 }
 
-void sys_block_process(uint64_t pid) {
-    blockProcess(pid);
+uint64_t sys_block_process(uint64_t pid) {
+    return blockProcess(pid);
 }
 
-void sys_process_ready(uint64_t pid) {
-    processReady(pid);
+uint64_t sys_process_ready(uint64_t pid) {
+    return processReady(pid);
 }
 
 uint64_t sys_get_pid() {
@@ -200,6 +200,10 @@ void sys_wait_pid() {
 
 void sys_yield() {
     forceScheduler();
+}
+
+void sys_print_processes() {
+    printProcesses();
 }
 
 int sys_sem_init(char *name, int value) {

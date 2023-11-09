@@ -55,13 +55,7 @@ void saveKey(uint8_t c){
         ctrl = 0;
         processP ppid = getCurrentProcess();
         killFgroundProcess();
-        printString((uint8_t *)"Killed process\n", WHITE);
-        printBase(ppid->pid, 10);
-        printProcesses();
-        printString((uint8_t *)"-------------\n", RED);
         processReady(ppid->parent_pid);
-        printString((uint8_t *)"-------------\n", RED);
-        printBase(ppid->parent_pid, 10);
         return;
     }
 

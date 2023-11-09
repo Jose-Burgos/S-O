@@ -1,6 +1,6 @@
 #include <stdint.h>
 //#include "syscall.h" // TODO: Remove this dependency
-//#include "test_util.h"
+#include "test_util.h"
 #include <../include/lib.h>
 
 #define MINOR_WAIT 1000000 // TODO: Change this value to prevent a process from flooding the screen

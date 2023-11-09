@@ -27,7 +27,9 @@
 #define PRINTMEM_COMMAND "printmem"
 #define PRINT_HEAP_STATUS_COMMAND "mem"
 #define TEST_MM_COMMAND "test-mm"
+#define TEST_PROCESSES_COMMAND "test-processes"
 #define PID_COMMAND "pid"
+#define PS_COMMAND "ps"
 
 #define MAX_TERMINAL_CHARS 124          // 124 = (1024/8) - 4 (number of characters that fit in one line minus the command prompt and cursor characters)
 #define HELP_MESSAGE "HELP:\n\
@@ -51,6 +53,8 @@ inforeg           - Displays the contents of all the registers at a given time.\
 printmem          - Receives a parameter in hexadecimal. Displays the next 32 bytes after the given memory direction given\n\
 mem               - Prints the status of the heap\n\
 pid               - Prints the pid of the current process\n\
+ps                - Prints the status of all processes\n\
+test-processes      - Tests process creation\n\
 test-mm           - Tests memory manager\n"
 
 #define INCREASE 1
@@ -76,6 +80,7 @@ void printNewline(void);
 void testInvalidOpException();
 void testDivideByZeroException();
 void testMemory();
+void ProcessesTest();
 
 void printInforeg();
 void printErrorMessage(char * program, char * errorMessage);
@@ -237,8 +242,7 @@ int readBuffer(char *buf) {
             printNewline();
         } else
             clear();
-    }
-    else if (!strcmp(buf, INFOREG_COMMAND))
+    } else if (!strcmp(buf, INFOREG_COMMAND))
         printInforeg();
     else if (!strcmp(buf, DIVIDE_BY_ZERO)){
         testDivideByZeroException();
@@ -249,6 +253,10 @@ int readBuffer(char *buf) {
     } else if (!strcmp(buf, EXIT_COMMAND)){
         clear();
         return 0;
+    } else if (!strcmp(buf, PS_COMMAND)){
+        ps();
+    } else if (!strcmp(buf, TEST_PROCESSES_COMMAND)){
+        ProcessesTest();
     } else if (!strcmp(buf, PRINT_HEAP_STATUS_COMMAND)) {
         memStatus();
     } else if (!strcmp(buf, PID_COMMAND)) {
@@ -308,6 +316,12 @@ int decreaseFontSize(){
 
 void testMemory() {
     char *argv[] = {"10000"};
-    exec("test_mm", argv, &test_mm, 0, 1);
-    waitpid(2);
+    int pid = exec("test_mm", argv, &test_mm, 0, 1);
+    waitpid(pid);
+}
+
+void ProcessesTest() {
+    char *argv[] = {"100"};
+    int pid = exec("test_processes", argv, &test_processes, 0, 1);
+    waitpid(pid);
 }

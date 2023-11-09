@@ -50,6 +50,7 @@ EXTERN sys_process_ready
 EXTERN sys_get_pid
 EXTERN sys_wait_pid
 EXTERN sys_yield
+EXTERN sys_print_processes
 EXTERN sys_sem_init
 EXTERN sys_sem_open
 EXTERN sys_sem_wait
@@ -340,6 +341,9 @@ syscallINTHandler:
     cmp rax, 0x23
     je .sys_pipesInfo
 
+    cmp rax, 0x24
+    je .sys_print_processes
+
     jmp .end
 
 .write:
@@ -436,6 +440,10 @@ syscallINTHandler:
 
 .sys_yield:
         call sys_yield
+        jmp .end
+
+.sys_print_processes:
+        call sys_print_processes
         jmp .end
 
 .sys_sem_init:

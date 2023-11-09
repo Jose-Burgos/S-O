@@ -34,6 +34,7 @@ GLOBAL sys_pipeWrite
 GLOBAL sys_pipeClose
 GLOBAL sys_pipeOpen
 GLOBAL sys_pipesInfo
+GLOBAL sys_print_processes
 
 ; syscall 0x00
 sys_write:
@@ -272,5 +273,11 @@ sys_pipeOpen:
 sys_pipesInfo:
     mov rax, 0x23
     mov r10, rcx
+    int 0x80
+    ret
+
+; syscall 0x24
+sys_print_processes:
+    mov rax, 0x24
     int 0x80
     ret

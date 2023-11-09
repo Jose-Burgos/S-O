@@ -434,17 +434,17 @@ uint64_t exec(char *name,  char **argv, void *entryPoint, uint64_t priority, uin
 	return sys_exec(name, argv, entryPoint, priority, fg_flag);
 }
 
-void kill(uint64_t pid) {
-	sys_kill_process(pid);
+uint64_t kill(uint64_t pid) {
+	return sys_kill_process(pid);
 }
 
 /*          ....mmmm....             */
-void block(uint64_t pid) {
-	sys_block_process(pid);
+uint64_t block(uint64_t pid) {
+	return sys_block_process(pid);
 }
 
-void ready(uint64_t pid) {
-	sys_process_ready(pid);
+uint64_t ready(uint64_t pid) {
+	return sys_process_ready(pid);
 }
 /*          ....mmmm....             */
 
@@ -458,6 +458,10 @@ void waitpid() {
 
 void yield() {
 	sys_yield();
+}
+
+void ps() {
+	sys_print_processes();
 }
 
 int sem_init(char *name, int value) {
