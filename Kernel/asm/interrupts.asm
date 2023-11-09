@@ -24,6 +24,7 @@ EXTERN syscallDispatcher
 
 EXTERN saveKey
 EXTERN timer_handler
+EXTERN schedule
 
 EXTERN sys_write
 EXTERN sys_read
@@ -41,7 +42,28 @@ EXTERN sys_inforeg
 EXTERN sys_beep
 EXTERN sys_malloc
 EXTERN sys_free
-
+EXTERN sys_memory_status
+EXTERN sys_exec
+EXTERN sys_kill_process
+EXTERN sys_block_process
+EXTERN sys_process_ready
+EXTERN sys_get_pid
+EXTERN sys_wait_pid
+EXTERN sys_yield
+EXTERN sys_print_processes
+EXTERN sys_sem_init
+EXTERN sys_sem_open
+EXTERN sys_sem_wait
+EXTERN sys_sem_post
+EXTERN sys_sem_close
+EXTERN sys_sem_info
+EXTERN sys_sem_count
+EXTERN sys_pipeRead
+EXTERN sys_pipeWrite
+EXTERN sys_pipeClose
+EXTERN sys_pipeOpen
+EXTERN sys_pipesInfo
+EXTERN sys_nice
 
 SECTION .text
 
@@ -138,7 +160,6 @@ _cli:
     cli
     ret
 
-
 _sti:
 	sti
 	ret
@@ -164,6 +185,9 @@ picSlaveMask:
 _irq00Handler:
     pushState
     call timer_handler
+    mov rdi, rsp
+    call schedule
+    mov rsp, rax
     mov al, 20h
     out 20h, al
 
@@ -258,6 +282,72 @@ syscallINTHandler:
     cmp rax, 0x0F
     je .free
 
+    cmp rax, 0x10
+    je .memory_status
+
+    cmp rax, 0x11
+    je .sys_exec
+
+    cmp rax, 0x12
+    je .sys_kill_process
+
+    cmp rax, 0x13
+    je .sys_block_process
+
+    cmp rax, 0x14
+    je .sys_process_ready
+
+    cmp rax, 0x15
+    je .sys_get_pid
+
+    cmp rax, 0x16
+    je .sys_wait_pid
+
+    cmp rax, 0x17
+    je .sys_yield
+
+    cmp rax, 0x18
+    je .sys_sem_init
+
+    cmp rax, 0x19
+    je .sys_sem_open
+
+    cmp rax, 0x1A
+    je .sys_sem_wait
+
+    cmp rax, 0x1B
+    je .sys_sem_post
+
+    cmp rax, 0x1C
+    je .sys_sem_close
+
+    cmp rax, 0x1D
+    je .sys_sem_info
+
+    cmp rax, 0x1E
+    je .sys_sem_count
+
+    cmp rax, 0x1F
+    je .sys_pipeRead
+
+    cmp rax, 0x20
+    je .sys_pipeWrite
+
+    cmp rax, 0x21
+    je .sys_pipeClose
+
+    cmp rax, 0x22
+    je .sys_pipeOpen
+
+    cmp rax, 0x23
+    je .sys_pipesInfo
+
+    cmp rax, 0x24
+    je .sys_print_processes
+
+    cmp rax, 0x25
+    je .sys_nice
+
     jmp .end
 
 .write:
@@ -316,12 +406,108 @@ syscallINTHandler:
         call sys_beep
         jmp .end
 
+; --- MEMORY ---
+
 .malloc:
         call sys_malloc
         jmp .end
 
 .free:
         call sys_free
+        jmp .end
+
+.memory_status:
+        call sys_memory_status
+        jmp .end
+
+; --- PROCESSES ---
+
+.sys_exec:
+        call sys_exec
+        jmp .end
+
+.sys_kill_process:
+        call sys_kill_process
+        jmp .end
+
+.sys_block_process:
+        call sys_block_process
+        jmp .end
+
+.sys_process_ready:
+        call sys_process_ready
+        jmp .end
+
+.sys_get_pid:
+        call sys_get_pid
+        jmp .end
+
+.sys_wait_pid:
+        call sys_wait_pid
+        jmp .end
+
+.sys_yield:
+        call sys_yield
+        jmp .end
+
+.sys_print_processes:
+        call sys_print_processes
+        jmp .end
+
+.sys_nice:
+        call sys_nice
+        jmp .end
+
+; --- SEM ---
+
+.sys_sem_init:
+        call sys_sem_init
+        jmp .end
+
+.sys_sem_open:
+        call sys_sem_open
+        jmp .end
+
+.sys_sem_wait:
+        call sys_sem_wait
+        jmp .end
+
+.sys_sem_post:
+        call sys_sem_post
+        jmp .end
+
+.sys_sem_close:
+        call sys_sem_close
+        jmp .end
+
+.sys_sem_info:
+        call sys_sem_info
+        jmp .end
+
+.sys_sem_count:
+        call sys_sem_count
+        jmp .end
+
+; --- PIPES ---
+
+.sys_pipeRead:
+        call sys_pipeRead
+        jmp .end
+
+.sys_pipeWrite:
+        call sys_pipeWrite
+        jmp .end
+
+.sys_pipeClose:
+        call sys_pipeClose
+        jmp .end
+
+.sys_pipeOpen:
+        call sys_pipeOpen
+        jmp .end
+
+.sys_pipesInfo:
+        call sys_pipesInfo
         jmp .end
 
 .end:

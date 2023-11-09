@@ -7,6 +7,10 @@
 #include <keyboardDriver.h>
 #include <interrupts.h>
 #include <MemoryManager.h>
+#include <scheduler.h>
+#include <process.h>
+#include "semaphore.h"
+#include "pipe.h"
 
 #define STDIN 0
 #define STDERR 1
@@ -31,7 +35,34 @@ uint64_t sys_wait(uint32_t millis);
 uint64_t sys_timedRead(uint8_t fd, char * buf, uint32_t count, uint32_t millis);
 uint64_t sys_inforeg(uint64_t array[REGISTER_NUM]);
 uint64_t sys_changeFontSize(uint32_t dif);
+// --- Memory ---
 void * sys_malloc(uint64_t memSize);
 void sys_free(void * ptr);
+void sys_memory_status(info_Mem * info);
+// --- Processes ---
+uint64_t sys_exec(char *name,  char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag);
+uint64_t sys_kill_process(uint64_t pid);
+uint64_t sys_block_process(uint64_t pid);
+uint64_t sys_process_ready(uint64_t pid);
+uint64_t sys_get_pid();
+void sys_wait_pid();
+void sys_yield();
+void sys_print_processes();
+void sys_nice(uint64_t priority, uint64_t pid);
+// --- Semaphores --- 
+int sys_sem_init(char *name, int value);
+int sys_sem_open(char *name, int value);
+int sys_sem_wait(char *name);
+int sys_sem_post(char *name);
+int sys_sem_close(char *name);
+int sys_sem_info(int i, p_sem buffer);
+int sys_sem_count();
+// --- Pipes ---
+int sys_pipeRead(int index, char *buff, int n);
+int sys_pipeWrite(int index, char *addr, int n);
+void sys_pipeClose(int index);
+int sys_pipeOpen(char *name);
+char *sys_pipesInfo();
+
 
 #endif

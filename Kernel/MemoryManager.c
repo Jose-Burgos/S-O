@@ -4,28 +4,6 @@
 static info_Mem infoMem;
 
 #ifdef BUDDY
-
-#define TREE_HEIGHT 15
-#define BLOCK_SIZE 512
-#define BLOCK_LIMIT (1 << (TREE_HEIGHT - 1))
-#define SIZE(level) ((1 << (level)) * BLOCK_SIZE)
-#define IS_POW2(x) (((x) != 0) && (((x) & ((x)-1)) == 0))
-
-typedef struct Block {
-    size_t size;
-    size_t level;
-    struct Block *next;
-    struct Block *prev;
-} Block;
-
-typedef struct BuddyInfo {
-    Block blocks[BLOCK_LIMIT];
-    Block *freeRow[TREE_HEIGHT];
-    size_t lvl;
-    size_t used;
-    void* start;
-} BuddyInfo;
-
 static BuddyInfo * buddy;
 
 size_t log2(size_t n); 
@@ -201,15 +179,8 @@ void mergeBuddy(Block *block_ptr) {
 }
 
 #else 
-#define MIN_BLOCK_SIZE sizeof(MemBlock) + 100
 
-typedef struct MemBlock {
-	size_t size;
-	struct MemBlock *next;
-} MemBlock;
-
-static MemBlock *alloc_mem = NULL;
-static MemBlock *free_mem = NULL;
+static MemoryManager * memoryManager;
 
 int initalizeMemoryManager(void *initialAddress, size_t size) {
 	// Checks for an aligned address, size and enough memory to allocate.
@@ -217,15 +188,16 @@ int initalizeMemoryManager(void *initialAddress, size_t size) {
 		return 1;
 
 	//Creates first block and assign it as the first element of the free memory list.
-	MemBlock * first_block = initialAddress;
+    memoryManager = initialAddress;
+	MemBlock * first_block = initialAddress + sizeof(MemoryManager);
 	first_block -> size = size - sizeof(MemBlock);
 	first_block -> next = NULL;
 
-	free_mem = first_block;
+	memoryManager->free_mem = first_block;
 
 	infoMem.allocated = sizeof(MemBlock);
-	infoMem.free = first_block -> size;
-	infoMem.total = size;
+	infoMem.free = first_block -> size - sizeof(MemoryManager);
+	infoMem.total = size - sizeof(MemoryManager);
 
 	return 0;
 }
@@ -240,7 +212,7 @@ void *malloc(size_t size) {
     }
 
     // Buscar el primer bloque que sea lo suficientemente grande
-    MemBlock *current = free_mem;
+    MemBlock *current = memoryManager->free_mem;
 
 
     MemBlock *previous = NULL;
@@ -270,13 +242,13 @@ void *malloc(size_t size) {
     if (previous != NULL) {
         previous->next = current->next;
     } else {
-        free_mem = current->next;
+        memoryManager->free_mem = current->next;
     }
     infoMem.free -= current->size;
 
     // Agregar el bloque a la lista de memoria asignada
-    current->next = alloc_mem;
-    alloc_mem = current;
+    current->next = memoryManager->alloc_mem;
+    memoryManager->alloc_mem = current;
     infoMem.allocated += current->size;
     // Devolver un puntero al bloque asignado
     return (void *)(current + 1);
@@ -289,7 +261,7 @@ void free(void *ptr) {
     MemBlock *blockToFree = (MemBlock *)ptr - 1;
 
     // Buscar el bloque en la lista de memoria asignada
-    MemBlock *current = alloc_mem;
+    MemBlock *current = memoryManager->alloc_mem;
     MemBlock *previousAlloc = NULL;
     while (current != NULL && current != blockToFree) {
         previousAlloc = current;
@@ -303,12 +275,12 @@ void free(void *ptr) {
     if (previousAlloc) {
         previousAlloc->next = current->next;
     } else {
-        alloc_mem = current->next;
+        memoryManager->alloc_mem = current->next;
     }
 
     // Insertar el bloque en la lista de memoria libre ordenada por dirección
     MemBlock *previousFree = NULL;
-    current = free_mem;
+    current = memoryManager->free_mem;
     while (current != NULL && current < blockToFree) {
         previousFree = current;
         current = current->next;
@@ -318,8 +290,8 @@ void free(void *ptr) {
         blockToFree->next = previousFree->next;
         previousFree->next = blockToFree;
     } else {
-        blockToFree->next = free_mem;
-        free_mem = blockToFree;
+        blockToFree->next = memoryManager->free_mem;
+        memoryManager->free_mem = blockToFree;
     }
 
     // Actualizar la información de memoria
@@ -327,7 +299,7 @@ void free(void *ptr) {
     infoMem.free += blockToFree->size + sizeof(MemBlock);
 
     // Fusionar bloques contiguos
-    current = free_mem;
+    current = memoryManager->free_mem;
     while (current && current->next) {
         if ((char *)(current + 1) + current->size == (char *)(current->next)) {
             current->size += sizeof(MemBlock) + current->next->size;

@@ -1,5 +1,5 @@
-#include <lib.h>
-#include <syscalls.h>
+#include "include/lib.h"
+#include "include/syscalls.h"
 #include <stdarg.h>
 
 #define BUFF_SIZE 100
@@ -414,10 +414,111 @@ void beep(int frequency) {
 	sys_beep(frequency);
 }
 
+// --- Memory ---
+
 void * malloc(unsigned int memSize) {
     return sys_malloc(memSize);
 }
 
 void free(void * ptr) {
 	sys_free(ptr);
+}
+
+void memStatus() {
+	info_mem info;
+	sys_memorystatus(&info);
+	printf("Free memory: %d bytes\n", info.free);
+	printf("Allocated memory: %d bytes\n", info.allocated);
+	printf("Total memory: %d bytes\n", info.total);
+}
+
+// --- Processes ---
+
+uint64_t exec(char *name,  char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag) {
+	return sys_exec(name, argv, entryPoint, priority, fg_flag);
+}
+
+uint64_t kill(uint64_t pid) {
+	return sys_kill_process(pid);
+}
+
+/*          ....mmmm....             */
+uint64_t block(uint64_t pid) {
+	return sys_block_process(pid);
+}
+
+uint64_t ready(uint64_t pid) {
+	return sys_process_ready(pid);
+}
+/*          ....mmmm....             */
+
+uint64_t getpid() {
+	return sys_get_pid();
+}
+
+void waitpid() {
+	sys_wait_pid();
+}
+
+void yield() {
+	sys_yield();
+}
+
+void ps() {
+	sys_print_processes();
+}
+
+void nice(long priority, long pid) {
+	sys_nice(priority, pid);
+}
+
+// --- Semaphores ---
+
+int sem_init(char *name, int value) {
+	return sys_sem_init(name, value);
+}
+
+int sem_open(char *name, int value) {
+	return sys_sem_open(name, value);
+}
+
+int sem_wait(char *name) {
+	return sys_sem_wait(name);
+}
+
+int sem_post(char *name) {
+	return sys_sem_post(name);
+}
+
+int sem_close(char *name) {
+	return sys_sem_close(name);
+}
+
+int sem_info(int i, p_sem buffer) {
+	return sys_sem_info(i, buffer);
+}
+
+int sem_count() {
+	return sys_sem_count();
+}
+
+// --- Pipes ---
+
+int pipeRead(int index, char *buff, int n) {
+	return sys_pipeRead(index, buff, n);
+}
+int pipeWrite(int index, char *addr, int n) {
+	return sys_pipeWrite(index, addr, n);
+}
+
+void pipeClose(int index) {
+	sys_pipeClose(index);
+}
+
+int pipeOpen(char *name) {
+	return sys_pipeOpen(name);
+}
+
+void pipesInfo() {
+	printf("%s", sys_pipesInfo());
 }

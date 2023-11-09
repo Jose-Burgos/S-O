@@ -162,6 +162,8 @@ uint64_t sys_changeFontSize(uint32_t size) {
     return changeFontSize(size);
 }
 
+// --- Memory ---
+
 void * sys_malloc(uint64_t memSize) {
     return malloc(memSize);
 }
@@ -170,3 +172,96 @@ void sys_free(void * mem) {
     free(mem);
 }
 
+void sys_memory_status(info_Mem * info) {
+    getInfoMem(info);
+}
+
+// --- Process ---
+
+uint64_t sys_exec(char *name,  char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag) {
+    return addProcess(name, argv, entryPoint, priority, fg_flag);
+}
+
+uint64_t sys_kill_process(uint64_t pid) {
+    return killProcess(pid);
+}
+
+uint64_t sys_block_process(uint64_t pid) {
+    return blockProcess(pid);
+}
+
+uint64_t sys_process_ready(uint64_t pid) {
+    return processReady(pid);
+}
+
+uint64_t sys_get_pid() {
+    return getCurrentPID();
+}
+
+void sys_wait_pid() {
+    wait_pid();
+}
+
+void sys_yield() {
+    forceScheduler();
+}
+
+void sys_print_processes() {
+    printProcesses();
+}
+
+void sys_nice(uint64_t priority, uint64_t pid) {
+    changePriority(priority, pid);
+}
+
+// --- SEM ---
+
+int sys_sem_init(char *name, int value) {
+    return sem_init(name, value);
+}
+
+int sys_sem_open(char *name, int value) {
+    return sem_open(name, value);
+}
+
+int sys_sem_wait(char *name) {
+    return sem_wait(name);
+}
+
+int sys_sem_post(char *name) {
+    return sem_post(name);
+}
+
+int sys_sem_close(char *name) {
+    return sem_close(name);
+}
+
+int sys_sem_info(int i, p_sem buffer) {
+    return get_sem_info(i, buffer);
+}
+
+int sys_sem_count() {
+    return get_sem_count();
+}
+
+// --- PIPE ---
+
+int sys_pipeRead(int index, char *buff, int n) {
+    return pipeRead(index, buff, n);
+}
+
+int sys_pipeWrite(int index, char *addr, int n) {
+    return pipeWrite(index, addr, n);
+}
+
+void sys_pipeClose(int index) {
+    pipeClose(index);
+}
+
+int sys_pipeOpen(char *name) {
+    return pipeOpen(name);
+}
+
+char *sys_pipesInfo() {
+    return pipesInfo();
+}

@@ -47,6 +47,8 @@ void *initializeKernelBinary() {
 
     initalizeMemoryManager(startOfMem, 0x100000);
 
+    init_scheduler();
+
     return getStackBase();
 }
 

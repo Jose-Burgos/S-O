@@ -1,10 +1,8 @@
 #ifndef _LIB_H_
 #define _LIB_H_
-
 #include <stdint.h>
 #include <color.h>
-
-typedef uint8_t bool;
+#include "syscalls.h"
 
 #define true 1
 #define false 0
@@ -32,7 +30,33 @@ long drawRectangle(int x, int y, int width, int height, Color color);
 void shortSleep(int ticks);
 void printBase(uint64_t value, uint32_t base);
 void beep(int frequency);
+// --- Memory ---
 void * malloc(unsigned int memSize);
 void free(void * ptr);
+void memStatus();
+// --- Processes ---
+uint64_t exec(char *name,  char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag);
+uint64_t kill(uint64_t pid);
+uint64_t block(uint64_t pid);
+uint64_t ready(uint64_t pid);
+uint64_t getpid();
+void waitpid();
+void yield();
+void ps();
+void nice(long priority, long pid);
+// --- Semaphores ---
+int sem_init(char *name, int value);
+int sem_open(char *name, int value);
+int sem_wait(char *name);
+int sem_post(char *name);
+int sem_close(char *name);
+int sem_info(int i, p_sem buffer);
+int sem_count();
+// --- Pipes ---
+int pipeRead(int index, char *buff, int n);
+int pipeWrite(int index, char *addr, int n);
+void pipeClose(int index);
+int pipeOpen(char *name);
+void pipesInfo();
 
 #endif

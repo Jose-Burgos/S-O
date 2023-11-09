@@ -25,7 +25,12 @@
 #define DEC_FONT_SIZE_COMMAND "dec-font"
 #define INFOREG_COMMAND "inforeg"
 #define PRINTMEM_COMMAND "printmem"
+#define PRINT_HEAP_STATUS_COMMAND "mem"
 #define TEST_MM_COMMAND "test-mm"
+#define TEST_PROCESSES_COMMAND "test-processes"
+#define PID_COMMAND "pid"
+#define PS_COMMAND "ps"
+#define TEST_PRIORITY_COMMAND "test-priority"
 
 #define MAX_TERMINAL_CHARS 124          // 124 = (1024/8) - 4 (number of characters that fit in one line minus the command prompt and cursor characters)
 #define HELP_MESSAGE "HELP:\n\
@@ -47,6 +52,11 @@ inforeg           - Displays the contents of all the registers at a given time.\
                     If the command is called before pressing CTRL at least once,\n\
                     the registers will appear as if they have the value 0\n\
 printmem          - Receives a parameter in hexadecimal. Displays the next 32 bytes after the given memory direction given\n\
+mem               - Prints the status of the heap\n\
+pid               - Prints the pid of the current process\n\
+ps                - Prints the status of all processes\n\
+test-processes    - Tests process creation\n\
+test-priority     - Tests process priority\n\
 test-mm           - Tests memory manager\n"
 
 #define INCREASE 1
@@ -63,7 +73,7 @@ test-mm           - Tests memory manager\n"
 
 #define NEWLINE "\n"
 
-void shell();
+void shell(int argc, char **argv);
 void bufferRead(char **buf);
 int readBuffer(char *buf);
 void printLine(char *str);
@@ -71,7 +81,9 @@ void helpCommand(void);
 void printNewline(void);
 void testInvalidOpException();
 void testDivideByZeroException();
-int testMemory();
+void testMemory();
+void ProcessesTest();
+void PrioTest();
 
 void printInforeg();
 void printErrorMessage(char * program, char * errorMessage);
@@ -82,7 +94,7 @@ int decreaseFontSize();
 extern void invalidOpcode();
 extern void divideZero();
 
-void shell() {
+void shell(int argc, char **argv) {
     int out = 1;
 
     while (out) {
@@ -233,8 +245,7 @@ int readBuffer(char *buf) {
             printNewline();
         } else
             clear();
-    }
-    else if (!strcmp(buf, INFOREG_COMMAND))
+    } else if (!strcmp(buf, INFOREG_COMMAND))
         printInforeg();
     else if (!strcmp(buf, DIVIDE_BY_ZERO)){
         testDivideByZeroException();
@@ -245,11 +256,18 @@ int readBuffer(char *buf) {
     } else if (!strcmp(buf, EXIT_COMMAND)){
         clear();
         return 0;
-    }else if (!strcmp(buf, TEST_MM_COMMAND)){
-        if (testMemory() == -1) {
-            printErrorMessage(TEST_MM_COMMAND, "Error while testing memory manager");
-            printNewline();
-            }
+    } else if (!strcmp(buf, PS_COMMAND)){
+        ps();
+    } else if (!strcmp(buf, TEST_PROCESSES_COMMAND)){
+        ProcessesTest();
+    } else if (!strcmp(buf, TEST_PRIORITY_COMMAND)){
+        PrioTest();
+    } else if (!strcmp(buf, PRINT_HEAP_STATUS_COMMAND)) {
+        memStatus();
+    } else if (!strcmp(buf, PID_COMMAND)) {
+        printf("PID: %d\n", getpid());
+    } else if (!strcmp(buf, TEST_MM_COMMAND)){
+        testMemory();
     } else {
         printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
         printNewline();
@@ -301,6 +319,20 @@ int decreaseFontSize(){
     return sys_changeFontSize(DECREASE);
 }
 
-int testMemory() {
-    return test_mm(1, (char*[]){"100000"});
+void testMemory() {
+    char *argv[] = {"10000"};
+    int pid = exec("test_mm", argv, &test_mm, 0, 1);
+    waitpid(pid);
+}
+
+void ProcessesTest() {
+    char *argv[] = {"100"};
+    int pid = exec("test_processes", argv, &test_processes, 0, 1);
+    waitpid(pid);
+}
+
+void PrioTest() {
+    char *argv[] = {NULL};
+    int pid = exec("test_priority", argv, &test_prio, 0, 1);
+    waitpid(pid);
 }
