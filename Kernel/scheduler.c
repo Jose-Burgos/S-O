@@ -40,7 +40,7 @@ void init_scheduler() {
     }
 
     char *argv[] = {NULL};
-    first->p = (process *)createProcess("IDLE", argv, &idle, QUANTUM_MAX);
+    first->p = (process *)createProcess("IDLE", argv, &idle, QUANTUM_MAX, 0);
     first->quantums = QUANTUM_MAX;
     root = first;
     first->next = root;
@@ -107,7 +107,7 @@ static void runNext(nodeP from) {
 uint64_t addProcess(char *name, char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag) {
     disableScheduler();
 
-    processP p = createProcess(name, argv, entryPoint, priority>QUANTUM_MAX?QUANTUM_MAX:priority);
+    processP p = createProcess(name, argv, entryPoint, priority>QUANTUM_MAX?QUANTUM_MAX:priority, fg_flag);
     
     //sem_wait(CHILDREN_SEM);
     currentNode->p->children++;
@@ -264,21 +264,18 @@ static void printNode(nodeP n) {
         "NEW",
         "KILLED"
     };
-    printf("Process: %s\t ID: %d\tState: %s\t\n", n->p->name, n->p->pid, stateStrings[n->p->state]);
+    printf("|\t%s\t|\t%d\t|\t%d\t|\t%s\t|\t%p\t|\t%p\t|\t%d\t|\n", n->p->name, n->p->pid, n->p->priority, stateStrings[n->p->state], n->p->stack, n->p->BP, n->p->fg);
 }
 
 void printProcesses() {
     nodeP aux = root;
+    printString((uint8_t *)"|\tProc:\t|\tID:\t|\tPrio:\t|\tState:\t|\tStack:\t|\tBP:\t|\tFG:\t|\n", GRAY);
     printNode(aux);
     aux = aux->next;
     while (aux != root) {
         printNode(aux);
         aux = aux->next;
     }
-    
-    //for(nodeP aux = root->next; aux != root; aux = aux->next) {
-    //    printNode(aux);
-    //}
 }
 
 processP getCurrentProcess() {

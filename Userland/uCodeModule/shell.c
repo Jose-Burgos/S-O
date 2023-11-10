@@ -4,6 +4,7 @@
 #include <lib.h>
 #include <tron.h>
 #include "../tests/include/tst.h"
+#include <greets.h>
 
 #define COMMAND_CHAR "$> "
 #define CURSOR "|"
@@ -26,10 +27,14 @@
 #define INFOREG_COMMAND "inforeg"
 #define PRINTMEM_COMMAND "printmem"
 #define PRINT_HEAP_STATUS_COMMAND "mem"
-#define TEST_MM_COMMAND "test-mm"
-#define TEST_PROCESSES_COMMAND "test-processes"
 #define PID_COMMAND "pid"
 #define PS_COMMAND "ps"
+#define LOOP_COMMAND "loop"
+#define KILL_COMMAND "kill"
+#define NICE_COMMAND "nice"
+#define BLOCK_COMMAND "block" 
+#define TEST_MM_COMMAND "test-mm"
+#define TEST_PROCESSES_COMMAND "test-processes"
 #define TEST_PRIORITY_COMMAND "test-priority"
 
 #define MAX_TERMINAL_CHARS 124          // 124 = (1024/8) - 4 (number of characters that fit in one line minus the command prompt and cursor characters)
@@ -55,6 +60,10 @@ printmem          - Receives a parameter in hexadecimal. Displays the next 32 by
 mem               - Prints the status of the heap\n\
 pid               - Prints the pid of the current process\n\
 ps                - Prints the status of all processes\n\
+loop              - Creates a process that prints a message every 10 seconds\n\
+kill              - Receives a pid as a parameter and kills the process with that pid\n\
+nice              - Receives a pid and a priority as parameters and changes the priority of the process with that pid\n\
+block             - Receives a pid as a parameter and blocks the process with that pid\n\
 test-processes    - Tests process creation\n\
 test-priority     - Tests process priority\n\
 test-mm           - Tests memory manager\n"
@@ -77,12 +86,13 @@ void shell(int argc, char **argv);
 void bufferRead(char **buf);
 int readBuffer(char *buf);
 void printLine(char *str);
+long readDecimalInput(char * buf);
 void helpCommand(void);
 void printNewline(void);
 void testInvalidOpException();
 void testDivideByZeroException();
-void testMemory();
-void ProcessesTest();
+void testMemory(char * buf, long len);
+void ProcessesTest(char * buf, long len);
 void PrioTest();
 
 void printInforeg();
@@ -258,16 +268,75 @@ int readBuffer(char *buf) {
         return 0;
     } else if (!strcmp(buf, PS_COMMAND)){
         ps();
-    } else if (!strcmp(buf, TEST_PROCESSES_COMMAND)){
-        ProcessesTest();
+    } else if (!strncmp(buf, KILL_COMMAND, l = strlen(KILL_COMMAND))){
+        if (buf[l] != ' ' && buf[l] != 0){
+            printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
+            printNewline();
+            return 1;
+        }
+        long pid = readDecimalInput(buf + l);
+        if (pid == -1)
+            return 1;
+        kill(pid);
+    } else if (!strncmp(buf, NICE_COMMAND, l = strlen(NICE_COMMAND))){
+        if (buf[l] != ' ' && buf[l] != 0){
+            printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
+            printNewline();
+            return 1;
+        }
+        long pid = readDecimalInput(buf + l);
+        if (pid == -1)
+            return 1;
+        if (buf[l] == 0){
+            printErrorMessage(buf, "No pid received");
+            printNewline();
+            return 1;
+        }
+        if (buf[l+2] != ' ' && buf[l+2] != 0){
+            printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
+            printNewline();
+            return 1;
+        }
+        long priority = readDecimalInput(buf + l + 2);
+        if (priority == -1)
+            return 1;
+        nice(priority, pid);
+    } else if (!strncmp(buf, BLOCK_COMMAND, l = strlen(BLOCK_COMMAND))){
+        if (buf[l] != ' ' && buf[l] != 0){
+            printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
+            printNewline();
+            return 1;
+        }
+        long pid = readDecimalInput(buf + l);
+        if (pid == -1)
+            return 1;
+        block(pid);
+    } else if (!strcmp(buf, LOOP_COMMAND)){
+        char *argv[] = {NULL};
+        int pid;
+        if ((pid = exec("loop", argv, &greets, 0, 0)) == -1) {
+            printErrorMessage(buf, "Error creating process"); // FIX SCHEDULER
+        }
+    }else if (!strncmp(buf, TEST_PROCESSES_COMMAND, l = strlen(TEST_PROCESSES_COMMAND))){
+        if (buf[l] != ' ' && buf[l] != 0){
+            printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
+            printNewline();
+            return 1;
+        }
+        ProcessesTest(buf, l);
     } else if (!strcmp(buf, TEST_PRIORITY_COMMAND)){
         PrioTest();
     } else if (!strcmp(buf, PRINT_HEAP_STATUS_COMMAND)) {
         memStatus();
     } else if (!strcmp(buf, PID_COMMAND)) {
         printf("PID: %d\n", getpid());
-    } else if (!strcmp(buf, TEST_MM_COMMAND)){
-        testMemory();
+    } else if (!strncmp(buf, TEST_MM_COMMAND, l = strlen(TEST_MM_COMMAND))){
+        if (buf[l] != ' ' && buf[l] != 0){
+            printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
+            printNewline();
+            return 1;
+        }
+        testMemory(buf, l);
     } else {
         printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
         printNewline();
@@ -319,14 +388,30 @@ int decreaseFontSize(){
     return sys_changeFontSize(DECREASE);
 }
 
-void testMemory() {
-    char *argv[] = {"10000"};
+void testMemory(char * buf, long len) {
+    long read = readDecimalInput(buf + len);
+    char * readS = "";
+    itoa(read, readS);
+    if (readS == NULL){
+        printErrorMessage(TEST_MM_COMMAND, "No argument received");
+        printNewline();
+        return ;
+    }
+    char *argv[] = {readS};
     int pid = exec("test_mm", argv, &test_mm, 0, 1);
     waitpid(pid);
 }
 
-void ProcessesTest() {
-    char *argv[] = {"100"};
+void ProcessesTest(char * buf, long len) {
+    long read = readDecimalInput(buf + len);
+    char * readS = "";
+    itoa(read, readS);
+    if (readS == NULL){
+        printErrorMessage(TEST_PROCESSES_COMMAND, "No argument received");
+        printNewline();
+        return ;
+    }
+    char *argv[] = {readS};
     int pid = exec("test_processes", argv, &test_processes, 0, 1);
     waitpid(pid);
 }
@@ -335,4 +420,28 @@ void PrioTest() {
     char *argv[] = {NULL};
     int pid = exec("test_priority", argv, &test_prio, 0, 1);
     waitpid(pid);
+}
+
+long readDecimalInput(char * buf) {
+    int i = 0;
+    while (buf[i] != 0 && buf[i] == ' ')
+        i++;
+    if (buf[i] == 0){
+        printErrorMessage(PRINTMEM_COMMAND, "No argument received");
+        printNewline();
+        return -1;
+    }
+    long accum = 0;
+    for (; buf[i] != 0 ; i++){
+        if (buf[i] >= '0' && buf[i] <= '9') {
+            accum = 10*accum + buf[i] - '0';
+        } else if (buf[i] == ' ' || buf[i] == 0) {
+            i++;
+        } else {
+            printErrorMessage(PRINTMEM_COMMAND, "Argument must be a decimal value");
+            printNewline();
+            return -1;
+        }
+    }
+    return accum;
 }

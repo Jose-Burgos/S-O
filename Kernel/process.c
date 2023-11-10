@@ -10,7 +10,7 @@ uint64_t count_args(char **argv);
 char **copy_args(int argc, char **argv);
 void free_args(char **argv);
 
-processP createProcess(char *name, char **argv, void *entryPoint, uint64_t priority) {
+processP createProcess(char *name, char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag) {
     processP p = malloc(sizeof(process));
     if(p == NULL) {
         return NULL;
@@ -38,6 +38,8 @@ processP createProcess(char *name, char **argv, void *entryPoint, uint64_t prior
     sem_post(PID_MUTEX);
     p->parent_pid = getCurrentPID();
     p->SP = (uint64_t)stack + STACK_SIZE - sizeof(stackFrame);
+    p->BP = p->SP;
+    p->fg = fg_flag;
 
     return p;
 }
