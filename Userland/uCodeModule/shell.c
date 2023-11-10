@@ -351,7 +351,7 @@ int readBuffer(char *buf) {
         if (readS == NULL){
             printErrorMessage(TEST_MM_COMMAND, "No argument received");
             printNewline();
-            return ;
+            return 1;
         }
         char *argv[] = {readS};
         testMemory(argv);
