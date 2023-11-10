@@ -267,7 +267,7 @@ static void printNode(nodeP n) {
     printf("|\t%s\t|\t%d\t|\t%d\t|\t%s\t|\t%p\t|\t%p\t|\t%d\t|\n", n->p->name, n->p->pid, n->p->priority, stateStrings[n->p->state], n->p->stack, n->p->BP, n->p->fg);
 }
 
-void printProcesses() {
+void printProcesses() { // TODO: print the list from the buttom to the top
     nodeP aux = root;
     printString((uint8_t *)"|\tProc:\t|\tID:\t|\tPrio:\t|\tState:\t|\tStack:\t|\tBP:\t|\tFG:\t|\n", GRAY);
     printNode(aux);

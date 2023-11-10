@@ -49,6 +49,7 @@ void freeProcess(processP p) {
     for(int i=0; p->argv[i]!=NULL; i++) {
         free(p->argv[i++]);
     }
+    current_pid--;
     free(p->argv);
     free(p);
 }
