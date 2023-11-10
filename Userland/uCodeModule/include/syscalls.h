@@ -59,7 +59,6 @@ void sys_yield();
 void sys_print_processes();
 void sys_nice(long priority, long pid);
 // --- Semaphores ---
-int sys_sem_init(char *name, int value);
 int sys_sem_open(char *name, int value);
 int sys_sem_wait(char *name);
 int sys_sem_post(char *name);

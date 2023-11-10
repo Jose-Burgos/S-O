@@ -51,7 +51,6 @@ EXTERN sys_get_pid
 EXTERN sys_wait_pid
 EXTERN sys_yield
 EXTERN sys_print_processes
-EXTERN sys_sem_init
 EXTERN sys_sem_open
 EXTERN sys_sem_wait
 EXTERN sys_sem_post
@@ -307,45 +306,42 @@ syscallINTHandler:
     je .sys_yield
 
     cmp rax, 0x18
-    je .sys_sem_init
-
-    cmp rax, 0x19
     je .sys_sem_open
 
-    cmp rax, 0x1A
+    cmp rax, 0x19
     je .sys_sem_wait
 
-    cmp rax, 0x1B
+    cmp rax, 0x1A
     je .sys_sem_post
 
-    cmp rax, 0x1C
+    cmp rax, 0x1B
     je .sys_sem_close
 
-    cmp rax, 0x1D
+    cmp rax, 0x1C
     je .sys_sem_info
 
-    cmp rax, 0x1E
+    cmp rax, 0x1D
     je .sys_sem_count
 
-    cmp rax, 0x1F
+    cmp rax, 0x1E
     je .sys_pipeRead
 
-    cmp rax, 0x20
+    cmp rax, 0x1F
     je .sys_pipeWrite
 
-    cmp rax, 0x21
+    cmp rax, 0x20
     je .sys_pipeClose
 
-    cmp rax, 0x22
+    cmp rax, 0x21
     je .sys_pipeOpen
 
-    cmp rax, 0x23
+    cmp rax, 0x22
     je .sys_pipesInfo
 
-    cmp rax, 0x24
+    cmp rax, 0x23
     je .sys_print_processes
 
-    cmp rax, 0x25
+    cmp rax, 0x24
     je .sys_nice
 
     jmp .end
@@ -459,10 +455,6 @@ syscallINTHandler:
         jmp .end
 
 ; --- SEM ---
-
-.sys_sem_init:
-        call sys_sem_init
-        jmp .end
 
 .sys_sem_open:
         call sys_sem_open

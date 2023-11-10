@@ -4,8 +4,6 @@
 #include <stdint.h>
 #include <MemoryManager.h>
 
-#define PID_MUTEX ""
-
 #define STACK_SIZE 4000 //CHEQUEAR
 
 typedef enum { READY = 0, RUNNING, BLOCKED, NEW, KILLED } states;

@@ -2,7 +2,7 @@
 #include "lib.h"
 #include "stack.h"
 #include <scheduler.h>
-#include <semaphore.h>
+#include "include/semaphore.h"
 
 uint64_t current_pid = 0;
 
@@ -33,9 +33,9 @@ processP createProcess(char *name, char **argv, void *entryPoint, uint64_t prior
     p->children = 0;
     p->priority = priority;
 
-    sem_wait(PID_MUTEX); // TODO: sync not tested
+    sem_wait(PID_SEM); // TODO: sync not tested
     p->pid = current_pid++;
-    sem_post(PID_MUTEX);
+    sem_post(PID_SEM);
     p->parent_pid = getCurrentPID();
     p->SP = (uint64_t)stack + STACK_SIZE - sizeof(stackFrame);
     p->BP = p->SP;

@@ -79,21 +79,6 @@ char *strncat(char *dest, const char *src, int n) {
 
 /**
  * @brief
- *  Copy the content of src into dest.
- * @param dest
- * @param src
- * @return char*
- */
-char *strcpy(char *dest, const char *src) {
-	char *aux;
-	for (aux = dest; *src != '\0';)
-		*(aux++) = *(src++);
-	*aux = '\0';
-	return aux;
-}
-
-/**
- * @brief
  *  Copy first n characters from src into dest.
  * @param dest
  * @param src
@@ -413,6 +398,21 @@ void printString(char * str, Color color){
 void beep(int frequency) {
 	sys_beep(frequency);
 }
+/**
+ * @brief
+ *  Copy the content of src into dest.
+ * @param dest
+ * @param src
+ * @return char*
+ */
+void strcpy(char *dest, const char *src) {
+	while (*src) {
+		*dest = *src;
+		dest++;
+		src++;
+	}
+	*dest = 0;
+}
 
 // --- Memory ---
 
@@ -475,10 +475,6 @@ void nice(long priority, long pid) {
 }
 
 // --- Semaphores ---
-
-int sem_init(char *name, int value) {
-	return sys_sem_init(name, value);
-}
 
 int sem_open(char *name, int value) {
 	return sys_sem_open(name, value);

@@ -39,5 +39,6 @@ uint64_t _xchg(uint64_t *dest, uint64_t value);
 uint64_t _cmpxchg(uint64_t *dest, uint64_t value, uint64_t test);
 void _forceScheduler(void);
 void ready_foreground_proc();
+void enableScheduler();
 
 #endif

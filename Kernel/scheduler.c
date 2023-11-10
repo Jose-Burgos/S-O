@@ -28,9 +28,9 @@ void idle() {
 
 void init_scheduler() {
 
-    //sem_open(SCHEDULER_SEM,1);
-    //sem_open(CHILDREN_SEM,1);
-    //sem_open(PID_MUTEX,1);
+    sem_open(SCHEDULER_SEM,1);
+    sem_open(CHILDREN_SEM,1);
+    sem_open(PID_SEM,1);
 
     nodeP first = malloc(sizeof(node));
 
@@ -109,9 +109,9 @@ uint64_t addProcess(char *name, char **argv, void *entryPoint, uint64_t priority
 
     processP p = createProcess(name, argv, entryPoint, priority>QUANTUM_MAX?QUANTUM_MAX:priority, fg_flag);
     
-    //sem_wait(CHILDREN_SEM);
+    sem_wait(CHILDREN_SEM);
     currentNode->p->children++;
-    //sem_post(CHILDREN_SEM);
+    sem_post(CHILDREN_SEM);
 
     nodeP new = insertNode(p);
 
@@ -212,11 +212,11 @@ static void removeNode(nodeP n) {
     nodeP parent = findNode(currentNode->p->parent_pid);
     if(parent != NULL) {
 
-        //sem_wait(CHILDREN_SEM); // TODO: sync not tested
+        sem_wait(CHILDREN_SEM); // TODO: sync not tested
         if(--parent->p->children == 0) {
             processReady(parent->p->pid);
         }
-        //sem_post(CHILDREN_SEM);
+        sem_post(CHILDREN_SEM);
         nodeCount--;
 
         nodeP toFree = n->next;
@@ -289,6 +289,12 @@ uint64_t getCurrentPID() {
 void forceScheduler() { 
     forceNext = 1;
     _forceScheduler();
+}
+
+void enableScheduler() {
+    if (pendingDisables > 0) {
+        pendingDisables--;
+    }
 }
 
 void ready_foreground_proc() {

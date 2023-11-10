@@ -36,6 +36,7 @@
 #define TEST_MM_COMMAND "test-mm"
 #define TEST_PROCESSES_COMMAND "test-processes"
 #define TEST_PRIORITY_COMMAND "test-priority"
+#define TEST_SYNC_COMMAND "test-sync"
 
 #define MAX_TERMINAL_CHARS 124          // 124 = (1024/8) - 4 (number of characters that fit in one line minus the command prompt and cursor characters)
 #define HELP_MESSAGE "HELP:\n\
@@ -66,7 +67,8 @@ nice              - Receives a pid and a priority as parameters and changes the 
 block             - Receives a pid as a parameter and blocks the process with that pid\n\
 test-processes    - Tests process creation\n\
 test-priority     - Tests process priority\n\
-test-mm           - Tests memory manager\n"
+test-mm           - Tests memory manager\n\
+test-sync         - Tests synchronization\n"
 
 #define INCREASE 1
 #define DECREASE -1
@@ -94,6 +96,7 @@ void testDivideByZeroException();
 void testMemory(char * argv[]);
 void ProcessesTest(char * argv[]);
 void PrioTest();
+void SyncTest(char * argv[]);
 
 void printInforeg();
 void printErrorMessage(char * program, char * errorMessage);
@@ -196,6 +199,26 @@ void printmem(char * buf) {
     }
 }
 
+char * itoa2(long number) {
+	char * str = malloc(12);
+	int digits = 1;
+	for (long n = number / 10; n != 0; digits++, n /= 10);
+
+	if (digits == 1) {
+		str[0] = '0';
+		str[1] = number + '0';
+		str[2] = 0;
+		return str;
+	}
+
+	str[digits] = 0;
+	for (int i = digits - 1; i >= 0; i--) {
+		str[i] = (number % 10) + '0';
+		number /= 10;
+	}
+
+	return str;
+}
 
 int readBuffer(char *buf) {
     int l;
@@ -317,7 +340,7 @@ int readBuffer(char *buf) {
         if ((pid = exec("loop", argv, &greets, 0, 0)) == -1) {
             printErrorMessage(buf, "Error creating process"); // FIX SCHEDULER
         }
-    }else if (!strncmp(buf, TEST_PROCESSES_COMMAND, l = strlen(TEST_PROCESSES_COMMAND))){
+    } else if (!strncmp(buf, TEST_PROCESSES_COMMAND, l = strlen(TEST_PROCESSES_COMMAND))){
         if (buf[l] != ' ' && buf[l] != 0){
             printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
             printNewline();
@@ -355,8 +378,24 @@ int readBuffer(char *buf) {
         }
         char *argv[] = {readS};
         testMemory(argv);
+    } else if (!strncmp(buf, TEST_SYNC_COMMAND, l = strlen(TEST_SYNC_COMMAND))) {
+        if (buf[l] != ' ' && buf[l] != 0){
+            printError(COMMAND_NOT_FOUND_MESSAGE);
+            printNewline();
+            return 1;
+        }
+        long times = readDecimalInput(buf + l);
+        if (times == -1)
+            return 1;
+        char * arg = itoa2(times);
+        long number = readDecimalInput(buf + l + 2);
+        if (number == -1)
+            return 1;
+        char * arg1 = itoa2(number);
+        char * argv[] = {arg, arg1, NULL}; // MUST BE NULL TERMINATED 
+        SyncTest(argv);
     } else {
-        printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
+        printError(COMMAND_NOT_FOUND_MESSAGE);
         printNewline();
     }
     return 1;
@@ -419,6 +458,11 @@ void ProcessesTest(char * argv[]) {
 void PrioTest() {
     char *argv[] = {NULL};
     int pid = exec("test_priority", argv, &test_prio, 0, 1);
+    waitpid(pid);
+}
+
+void SyncTest(char * argv[]) {
+    int pid = exec("test_sync", argv, &test_sync, 0, 1);
     waitpid(pid);
 }
 

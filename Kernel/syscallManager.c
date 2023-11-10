@@ -216,10 +216,6 @@ void sys_nice(uint64_t priority, uint64_t pid) {
 
 // --- SEM ---
 
-int sys_sem_init(char *name, int value) {
-    return sem_init(name, value);
-}
-
 int sys_sem_open(char *name, int value) {
     return sem_open(name, value);
 }

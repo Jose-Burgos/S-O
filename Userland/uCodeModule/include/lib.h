@@ -30,6 +30,7 @@ long drawRectangle(int x, int y, int width, int height, Color color);
 void shortSleep(int ticks);
 void printBase(uint64_t value, uint32_t base);
 void beep(int frequency);
+void strcpy(char *dest, const char *src);
 // --- Memory ---
 void * malloc(unsigned int memSize);
 void free(void * ptr);
@@ -45,7 +46,6 @@ void yield();
 void ps();
 void nice(long priority, long pid);
 // --- Semaphores ---
-int sem_init(char *name, int value);
 int sem_open(char *name, int value);
 int sem_wait(char *name);
 int sem_post(char *name);

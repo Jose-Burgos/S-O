@@ -22,7 +22,6 @@ GLOBAL sys_process_ready
 GLOBAL sys_get_pid
 GLOBAL sys_wait_pid
 GLOBAL sys_yield
-GLOBAL sys_sem_init
 GLOBAL sys_sem_open
 GLOBAL sys_sem_wait
 GLOBAL sys_sem_post
@@ -194,98 +193,91 @@ sys_yield:
     ret
 
 ; syscall 0x18
-sys_sem_init:
+sys_sem_open: 
     mov rax, 0x18
     mov r10, rcx
     int 0x80
     ret
 
 ; syscall 0x19
-sys_sem_open: 
+sys_sem_wait:
     mov rax, 0x19
     mov r10, rcx
     int 0x80
     ret
 
 ; syscall 0x1A
-sys_sem_wait:
+sys_sem_post:
     mov rax, 0x1A
     mov r10, rcx
     int 0x80
     ret
 
 ; syscall 0x1B
-sys_sem_post:
+sys_sem_close:
     mov rax, 0x1B
     mov r10, rcx
     int 0x80
     ret
 
 ; syscall 0x1C
-sys_sem_close:
+sys_sem_info:
     mov rax, 0x1C
     mov r10, rcx
     int 0x80
     ret
 
 ; syscall 0x1D
-sys_sem_info:
+sys_sem_count:
     mov rax, 0x1D
     mov r10, rcx
     int 0x80
     ret
 
 ; syscall 0x1E
-sys_sem_count:
+sys_pipeRead:
     mov rax, 0x1E
     mov r10, rcx
     int 0x80
     ret
 
 ; syscall 0x1F
-sys_pipeRead:
+sys_pipeWrite:
     mov rax, 0x1F
     mov r10, rcx
     int 0x80
     ret
 
 ; syscall 0x20
-sys_pipeWrite:
+sys_pipeClose:
     mov rax, 0x20
     mov r10, rcx
     int 0x80
     ret
 
 ; syscall 0x21
-sys_pipeClose:
+sys_pipeOpen:
     mov rax, 0x21
     mov r10, rcx
     int 0x80
     ret
 
 ; syscall 0x22
-sys_pipeOpen:
+sys_pipesInfo:
     mov rax, 0x22
     mov r10, rcx
     int 0x80
     ret
 
 ; syscall 0x23
-sys_pipesInfo:
+sys_print_processes:
     mov rax, 0x23
-    mov r10, rcx
     int 0x80
     ret
 
 ; syscall 0x24
-sys_print_processes:
-    mov rax, 0x24
-    int 0x80
-    ret
-
-; syscall 0x25
 sys_nice:
-    mov rax, 0x25
+    mov rax, 0x24
     mov r10, rcx
     int 0x80
     ret
