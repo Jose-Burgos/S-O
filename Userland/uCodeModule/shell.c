@@ -91,8 +91,8 @@ void helpCommand(void);
 void printNewline(void);
 void testInvalidOpException();
 void testDivideByZeroException();
-void testMemory(char * buf, long len);
-void ProcessesTest(char * buf, long len);
+void testMemory(char * argv[]);
+void ProcessesTest(char * argv[]);
 void PrioTest();
 
 void printInforeg();
@@ -323,7 +323,16 @@ int readBuffer(char *buf) {
             printNewline();
             return 1;
         }
-        ProcessesTest(buf, l);
+        long read = readDecimalInput(buf + l);
+        char * readS = "";
+        itoa(read, readS);
+        if (readS == NULL){
+            printErrorMessage(TEST_PROCESSES_COMMAND, "No argument received");
+            printNewline();
+            return 1;
+        }
+        char *argv[] = {readS};
+        ProcessesTest(argv);
     } else if (!strcmp(buf, TEST_PRIORITY_COMMAND)){
         PrioTest();
     } else if (!strcmp(buf, PRINT_HEAP_STATUS_COMMAND)) {
@@ -336,7 +345,16 @@ int readBuffer(char *buf) {
             printNewline();
             return 1;
         }
-        testMemory(buf, l);
+        long read = readDecimalInput(buf + l);
+        char * readS = "";
+        itoa(read, readS);
+        if (readS == NULL){
+            printErrorMessage(TEST_MM_COMMAND, "No argument received");
+            printNewline();
+            return ;
+        }
+        char *argv[] = {readS};
+        testMemory(argv);
     } else {
         printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
         printNewline();
@@ -388,30 +406,12 @@ int decreaseFontSize(){
     return sys_changeFontSize(DECREASE);
 }
 
-void testMemory(char * buf, long len) {
-    long read = readDecimalInput(buf + len);
-    char * readS = "";
-    itoa(read, readS);
-    if (readS == NULL){
-        printErrorMessage(TEST_MM_COMMAND, "No argument received");
-        printNewline();
-        return ;
-    }
-    char *argv[] = {readS};
+void testMemory(char * argv[]) {
     int pid = exec("test_mm", argv, &test_mm, 0, 1);
     waitpid(pid);
 }
 
-void ProcessesTest(char * buf, long len) {
-    long read = readDecimalInput(buf + len);
-    char * readS = "";
-    itoa(read, readS);
-    if (readS == NULL){
-        printErrorMessage(TEST_PROCESSES_COMMAND, "No argument received");
-        printNewline();
-        return ;
-    }
-    char *argv[] = {readS};
+void ProcessesTest(char * argv[]) {
     int pid = exec("test_processes", argv, &test_processes, 0, 1);
     waitpid(pid);
 }
