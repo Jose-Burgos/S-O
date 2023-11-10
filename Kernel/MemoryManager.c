@@ -14,8 +14,7 @@ void removeBlock(Block *block_ptr);
 int splitBlock(size_t level);
 void mergeBuddy(Block *block_ptr);
 
-int initalizeMemoryManager(void *initialAddress, size_t size)
-{
+int initalizeMemoryManager(void *initialAddress, size_t size){
     if ((size_t)initialAddress % sizeof(size_t) != 0 || size % BLOCK_SIZE != 0 || !IS_POW2(size / BLOCK_SIZE)) return -1;
 
     size_t level = log2(size / BLOCK_SIZE);
@@ -25,6 +24,7 @@ int initalizeMemoryManager(void *initialAddress, size_t size)
     infoMem.allocated = 0;
     infoMem.total = size - sizeof(BuddyInfo);
     infoMem.free = size - sizeof(BuddyInfo);
+    infoMem.type = (uint8_t *) "BUDDY";
     buddy = initialAddress;
 
     for (size_t i = 0; i < BLOCK_LIMIT; i++) {
@@ -198,6 +198,7 @@ int initalizeMemoryManager(void *initialAddress, size_t size) {
 	infoMem.allocated = sizeof(MemBlock);
 	infoMem.free = first_block -> size - sizeof(MemoryManager);
 	infoMem.total = size - sizeof(MemoryManager);
+    infoMem.type = (uint8_t *) "LIST";
 
 	return 0;
 }

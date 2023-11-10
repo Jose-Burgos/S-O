@@ -427,6 +427,8 @@ void free(void * ptr) {
 void memStatus() {
 	info_mem info;
 	sys_memorystatus(&info);
+	printString("Memory Manger type: ", GRAY);
+	printf("%s\n", info.type);
 	printf("Free memory: %d bytes\n", info.free);
 	printf("Allocated memory: %d bytes\n", info.allocated);
 	printf("Total memory: %d bytes\n", info.total);

@@ -46,6 +46,7 @@ typedef struct MemoryManager {
 #endif
 
 typedef struct info_Mem {
+    uint8_t * type;
     size_t allocated;
     size_t free;
     size_t total;

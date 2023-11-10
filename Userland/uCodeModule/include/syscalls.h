@@ -11,6 +11,7 @@
 #define NAME_CHAR_LIMIT 1024
 
 typedef struct info_mem {
+    uint8_t * type;
     size_t allocated;
     size_t free;
     size_t total;
