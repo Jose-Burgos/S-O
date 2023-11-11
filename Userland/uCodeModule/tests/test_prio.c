@@ -5,9 +5,9 @@
 #define WAIT 10000000      // TODO: Change this value to make the wait long enough to see theese processes beeing run at least twice
 
 #define TOTAL_PROCESSES 3
-#define LOWEST 0  // TODO: Change as required
-#define MEDIUM 3  // TODO: Change as required
-#define HIGHEST 6 // TODO: Change as required
+#define LOWEST 0  
+#define MEDIUM 3  
+#define HIGHEST 6 
 
 int64_t prio[TOTAL_PROCESSES] = {LOWEST, MEDIUM, HIGHEST};
 
@@ -17,14 +17,14 @@ void test_prio() {
   char *argv[] = {NULL};
 
   for (i = 0; i < TOTAL_PROCESSES; i++) {
-    pids[i] = exec("loop_print", argv, &endless_loop_print, prio[i], 0);
+    pids[i] = exec("loop_print", argv, &endless_loop_print, HIGHEST, 0);
   }
   
   bussy_wait(WAIT);
   printf("\nCHANGING PRIORITIES...\n");
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
-    nice(pids[i], prio[i]);
+    nice(prio[i],pids[i]);
 
   bussy_wait(WAIT);
   printf("\nBLOCKING...\n");
@@ -35,7 +35,7 @@ void test_prio() {
   printf("CHANGING PRIORITIES WHILE BLOCKED...\n");
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
-    nice(pids[i], MEDIUM);
+    nice(MEDIUM,pids[i]);
 
   printf("UNBLOCKING...\n");
 

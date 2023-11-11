@@ -27,11 +27,6 @@ void idle() {
 }
 
 void init_scheduler() {
-
-    sem_open(SCHEDULER_SEM,1);
-    sem_open(CHILDREN_SEM,1);
-    sem_open(PID_SEM,1);
-
     nodeP first = malloc(sizeof(node));
 
     if(first==NULL) {
@@ -40,13 +35,17 @@ void init_scheduler() {
     }
 
     char *argv[] = {NULL};
-    first->p = (process *)createProcess("IDLE", argv, &idle, QUANTUM_MAX, 0);
+    first->p = (process *)createProcess("IDLE", argv, &idle, QUANTUM_MAX);
     first->quantums = QUANTUM_MAX;
     root = first;
     first->next = root;
     currentNode = root;
     currentNode->p->state = RUNNING;
     nodeCount++;
+    sem_open(SCHEDULER_SEM,1);
+    sem_open(CHILDREN_SEM,1);
+    sem_open(PID_SEM,1);
+
 }
 
 uint64_t schedule(uint64_t SP) {
@@ -62,8 +61,8 @@ uint64_t schedule(uint64_t SP) {
         if(currentNode->p->state == RUNNING) {
             currentNode->quantums--;
         }
+        else if(currentNode->p->state == KILLED) {
 
-        if(currentNode->p->state == KILLED) {
             if(currentNode->p == foreground->p) {
                 killFgroundProcess();
             } else {
@@ -78,9 +77,9 @@ uint64_t schedule(uint64_t SP) {
         } 
 
         else if(currentNode->quantums == 0 || forceNext) {
+            forceNext = 0;
             currentNode->p->state = READY;
             runNext(currentNode->next);
-            forceNext = 0;
         }
     }
     return currentNode->p->SP;
@@ -91,6 +90,12 @@ void disableScheduler() {
     do {
         count = pendingDisables;
     } while (_cmpxchg(&pendingDisables, count + 1, count) != count);
+}
+
+void enableScheduler() {
+    if (pendingDisables > 0) {
+        pendingDisables--;
+    }
 }
 
 void forceNextSwitch() {
@@ -107,7 +112,7 @@ static void runNext(nodeP from) {
 uint64_t addProcess(char *name, char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag) {
     disableScheduler();
 
-    processP p = createProcess(name, argv, entryPoint, priority>QUANTUM_MAX?QUANTUM_MAX:priority, fg_flag);
+    processP p = createProcess(name, argv, entryPoint, priority);
     
     sem_wait(CHILDREN_SEM);
     currentNode->p->children++;
@@ -180,11 +185,13 @@ void changePriority(uint64_t priority, uint64_t pid) {
 void killCurrentProcess() {
     currentNode->p->state = KILLED;
     _forceScheduler();
+    return;
 }
 
 void blockCurrentProcess() {
     currentNode->p->state = BLOCKED;
     _forceScheduler();
+    return;
 }
 
 uint64_t killProcess(uint64_t pid) {
@@ -208,7 +215,7 @@ static void removeNode(nodeP n) {
     nodeP parent = findNode(currentNode->p->parent_pid);
     if(parent != NULL) {
 
-        sem_wait(CHILDREN_SEM); // TODO: sync not tested
+        sem_wait(CHILDREN_SEM);
         if(--parent->p->children == 0) {
             processReady(parent->p->pid);
         }
@@ -217,11 +224,11 @@ static void removeNode(nodeP n) {
 
         nodeP toFree = n->next;
         freeProcess(n->p);
-        n->p = toFree->p;
+        n->p = n->next->p;
+        n->next = n->next->next;
         if(n->p->pid == 0) {
             root = n;
         }
-        n->next = toFree->next;
         free(toFree);
     }
 }
@@ -280,10 +287,4 @@ processP getCurrentProcess() {
 
 uint64_t getCurrentPID() {
     return currentNode != NULL ? currentNode->p->pid : 0;
-}
-
-void enableScheduler() {
-    if (pendingDisables > 0) {
-        pendingDisables--;
-    }
 }
