@@ -290,7 +290,12 @@ int readBuffer(char *buf) {
         clear();
         return 0;
     } else if (!strcmp(buf, PS_COMMAND)){
-        ps();
+        char *argv[] = {NULL};
+        if (exec("ps", argv, &ps, 1, 1) == -1){
+            printErrorMessage(buf, "Error printing processes");
+            printNewline();
+        } 
+        waitpid();
     } else if (!strncmp(buf, KILL_COMMAND, l = strlen(KILL_COMMAND))){
         if (buf[l] != ' ' && buf[l] != 0){
             printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
@@ -337,8 +342,8 @@ int readBuffer(char *buf) {
     } else if (!strcmp(buf, LOOP_COMMAND)){
         char *argv[] = {NULL};
         int pid;
-        if ((pid = exec("loop", argv, &greets, 0, 0)) == -1) {
-            printErrorMessage(buf, "Error creating process"); // FIX SCHEDULER
+        if ((pid = exec("greets", argv, &greets, 1, 1)) == -1) {
+            printErrorMessage(buf, "Error creating process");
         }
     } else if (!strncmp(buf, TEST_PROCESSES_COMMAND, l = strlen(TEST_PROCESSES_COMMAND))){
         if (buf[l] != ' ' && buf[l] != 0){
@@ -446,24 +451,44 @@ int decreaseFontSize(){
 }
 
 void testMemory(char * argv[]) {
-    int pid = exec("test_mm", argv, &test_mm, 0, 1);
-    waitpid(pid);
+    int pid = exec("test_mm", argv, &test_mm, 1, 1);
+    if (pid == -1) {
+        printErrorMessage("test_mm", "Error creating process");
+        printNewline();
+        return;
+    }
+    waitpid();
 }
 
 void ProcessesTest(char * argv[]) {
-    int pid = exec("test_processes", argv, &test_processes, 0, 1);
-    waitpid(pid);
+    int pid = exec("test_processes", argv, &test_processes, 1, 1);
+    if (pid == -1) {
+        printErrorMessage("test_processes", "Error creating process");
+        printNewline();
+        return;
+    }
+    waitpid();
 }
 
 void PrioTest() {
     char *argv[] = {NULL};
-    int pid = exec("test_priority", argv, &test_prio, 0, 1);
-    waitpid(pid);
+    int pid = exec("test_priority", argv, &test_prio, 1, 1);
+    if (pid == -1) {
+        printErrorMessage("test_priority", "Error creating process");
+        printNewline();
+        return;
+    }
+    waitpid();
 }
 
 void SyncTest(char * argv[]) {
-    int pid = exec("test_sync", argv, &test_sync, 0, 1);
-    waitpid(pid);
+    int pid = exec("test_sync", argv, &test_sync, 1, 1);
+    if (pid == -1) {
+        printErrorMessage("test_sync", "Error creating process");
+        printNewline();
+        return;
+    }
+    waitpid();
 }
 
 long readDecimalInput(char * buf) {

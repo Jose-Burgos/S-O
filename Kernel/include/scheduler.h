@@ -5,7 +5,7 @@
 #include <process.h>
 #include <stdint.h>
 
-#define QUANTUM_MAX 8
+#define QUANTUM_MAX 5
 
 extern uint64_t _xchg(uint64_t *dest, uint64_t value);
 extern uint64_t _cmpxchg(uint64_t *dest, uint64_t value, uint64_t test);

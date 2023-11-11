@@ -5,6 +5,6 @@
 void greets(void) {
     while (1) {
         printf("Hello i'm %d, have a great day!\n", getpid());
-        shortSleep(1000);
+        shortSleep(1);
     }
 }

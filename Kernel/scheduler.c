@@ -62,7 +62,6 @@ uint64_t schedule(uint64_t SP) {
             currentNode->quantums++;
         }
         else if(currentNode->p->state == KILLED) {
-
             if(currentNode->p == foreground->p) {
                 killFgroundProcess();
             } else {
