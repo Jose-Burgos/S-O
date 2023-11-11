@@ -179,12 +179,12 @@ void changePriority(uint64_t priority, uint64_t pid) {
 
 void killCurrentProcess() {
     currentNode->p->state = KILLED;
-    forceScheduler();
+    _forceScheduler();
 }
 
 void blockCurrentProcess() {
     currentNode->p->state = BLOCKED;
-    forceScheduler();
+    _forceScheduler();
 }
 
 uint64_t killProcess(uint64_t pid) {
@@ -291,8 +291,4 @@ void enableScheduler() {
     if (pendingDisables > 0) {
         pendingDisables--;
     }
-}
-
-void ready_foreground_proc() {
-    foreground->p->state = foreground->p->state == BLOCKED ? READY : foreground->p->state;
 }
