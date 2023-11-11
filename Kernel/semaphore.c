@@ -43,7 +43,7 @@ int sem_wait(char *name) {
             break;
         }
         enableScheduler();
-        forceScheduler();
+        forceNextSwitch();
     }
     sem->value--;
     sem->lock = 0;
