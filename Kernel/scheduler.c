@@ -59,7 +59,7 @@ uint64_t schedule(uint64_t SP) {
         currentNode->p->SP = SP;
 
         if(currentNode->p->state == RUNNING) {
-            currentNode->quantums--;
+            currentNode->quantums++;
         }
         else if(currentNode->p->state == KILLED) {
 
@@ -76,7 +76,7 @@ uint64_t schedule(uint64_t SP) {
             runNext(currentNode->next);
         } 
 
-        else if(currentNode->quantums == 0 || forceNext) {
+        else if(currentNode->quantums > QUANTUM_MAX || forceNext) {
             forceNext = 0;
             currentNode->p->state = READY;
             runNext(currentNode->next);
