@@ -32,13 +32,12 @@ uint64_t processReady(uint64_t pid);
 void printProcesses();
 processP getCurrentProcess();
 uint64_t getCurrentPID();
-void forceScheduler();
+void forceNextSwitch();
 void killFgroundProcess();
 void fgroundProcessReady();
 uint64_t _xchg(uint64_t *dest, uint64_t value);
 uint64_t _cmpxchg(uint64_t *dest, uint64_t value, uint64_t test);
 void _forceScheduler(void);
-void ready_foreground_proc();
 void enableScheduler();
 
 #endif

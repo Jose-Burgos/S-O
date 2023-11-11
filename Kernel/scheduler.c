@@ -95,7 +95,7 @@ void disableScheduler() {
 
 void forceNextSwitch() {
     forceNext = 1;
-    forceScheduler();
+    _forceScheduler();
 }
 
 static void runNext(nodeP from) {
@@ -280,11 +280,6 @@ processP getCurrentProcess() {
 
 uint64_t getCurrentPID() {
     return currentNode != NULL ? currentNode->p->pid : 0;
-}
-
-void forceScheduler() { 
-    forceNext = 1;
-    _forceScheduler();
 }
 
 void enableScheduler() {

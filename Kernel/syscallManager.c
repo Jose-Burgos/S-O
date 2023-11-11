@@ -203,7 +203,7 @@ void sys_wait_pid() {
 }
 
 void sys_yield() {
-    forceScheduler();
+    forceNextSwitch();
 }
 
 void sys_print_processes() {
