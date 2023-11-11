@@ -123,11 +123,7 @@ uint64_t addProcess(char *name, char **argv, void *entryPoint, uint64_t priority
     }
     
     nodeCount++;
-
-    if(pendingDisables > 0) {
-        pendingDisables--;
-    }
-
+    enableScheduler();
     return p->pid;
 }
 

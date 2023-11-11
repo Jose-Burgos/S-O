@@ -4,7 +4,7 @@
 #include <scheduler.h>
 #include <stdint.h>
 #include <process.h>
-#include <lib.h>
+#include "lib.h"
 #include <semaphore.h>
 
 #define MAX_PIPES 50

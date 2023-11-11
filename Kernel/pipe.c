@@ -1,6 +1,4 @@
 #include "include/pipe.h"
-#include <lib.h>
-#include "include/lib.h"
 
 pipe_t pipes[MAX_PIPES];
 
@@ -45,7 +43,7 @@ int pipeRead(int index, char *buff, int n) {
 }
 
 int pipeWrite(int index, char *buff, int n) {
-    if(pipes[index].initialized == 0)
+    if(pipes[index].initialized == 0 || n == 0)
         return - 1;
     
     pipe_t pipe = pipes[index];
