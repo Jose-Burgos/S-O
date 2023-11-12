@@ -1,5 +1,5 @@
-#ifndef INTERRUPTS_H_
-#define INTERRUPTS_H_
+#ifndef     EXCEPTIONS_H_
+#define     EXCEPTIONS_H_
 
 #define ERROR0 "Divide Zero Exception"
 #define ERROR6 "Invalid Operand Code Exception"

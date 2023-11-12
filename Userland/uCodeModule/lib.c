@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "include/lib.h"
 #include "include/syscalls.h"
 #include <stdarg.h>
@@ -429,8 +431,8 @@ void memStatus() {
 	sys_memorystatus(&info);
 	printString("Memory Manger type: ", GRAY);
 	printf("%s\n", info.type);
-	printf("Free memory: %d bytes\n", info.free);
-	printf("Allocated memory: %d bytes\n", info.allocated);
+	printf("Free memory: %ld bytes\n", info.free);
+	printf("Allocated memory: %ld bytes\n", info.allocated);
 	printf("Total memory: %d bytes\n", info.total);
 }
 

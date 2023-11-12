@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "include/semaphore.h" 
 
 sem_ts semaphores[MAX_SEMS];
@@ -36,7 +38,7 @@ int sem_wait(char *name) {
             sem->blocked_processes[last % MAX_PROC] = pid;
         } while (_cmpxchg(&sem->blocked_last, last + 1, last) != last);        
         if (checkSem(sem)) {
-            while ((last = sem->blocked_last) - sem->blocked_first > 0 &&
+            while ((last = sem->blocked_last) != sem->blocked_first &&
                    _cmpxchg(&sem->blocked_last, last - 1, last) != last) ; 
             processReady(pid);
             enableScheduler();
@@ -77,7 +79,7 @@ int sem_close(char *name) {
 }
 
 int get_sem_count() {
-    int count;
+    int count = 0;
     for(int i = 0; i < MAX_SEMS; i++)
         if(exist(semaphores[i].sem_id)) count++;
     return count;
@@ -145,7 +147,7 @@ static void updateProc(p_sem sem) {
 }
 
 static char checkSem(p_sem sem) {
-    if (!_xchg(&sem->lock, 1) && (sem->value > 0 || (sem->lock = 0)))
+    if (!_xchg(&sem->lock, 1) && (sem->value > 0))
         return 1;
     return 0;
 }

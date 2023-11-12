@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <syscalls.h>
 #include <color.h>
 #include <timer.h>
@@ -141,7 +143,7 @@ void bufferRead(char **buf) {
             (*buf)[i++] = (char) c;
             (*buf)[i] = 0;
             printf("\b");
-            printf(*buf + i - 1);
+            printf("%s", *buf + i - 1);
             printf(CURSOR);
         }
     }
@@ -149,7 +151,7 @@ void bufferRead(char **buf) {
 
 void printmem(char * buf) {
     int i = 0;
-    while (buf[i] != 0 && buf[i] == ' ')
+    while (buf[i] == ' ')
         i++;
     if (buf[i] == 0){
         printErrorMessage(PRINTMEM_COMMAND, "No argument received");
@@ -203,6 +205,9 @@ void printmem(char * buf) {
 
 char * itoa2(long number) {
 	char * str = malloc(12);
+    if (str == NULL) {
+        return NULL;
+    }
 	int digits = 1;
 	for (long n = number / 10; n != 0; digits++, n /= 10);
 
@@ -336,9 +341,16 @@ int readBuffer(char *buf) {
             return 1;
         }
         char * aux = itoa2(pid);
-        long priority = readDecimalInput(buf + l + strlen(aux) + 1);
-        if (priority == -1)
+        if (aux == NULL){
+            printErrorMessage(buf, "Error allocating memory");
+            printNewline();
             return 1;
+        }
+        long priority = readDecimalInput(buf + l + strlen(aux) + 1);
+        free(aux);
+        if (priority == -1) {
+            return 1;
+        }
         nice(priority, pid);
     } else if (!strncmp(buf, BLOCK_COMMAND, l = strlen(BLOCK_COMMAND))){
         if (buf[l] != ' ' && buf[l] != 0){
@@ -365,11 +377,6 @@ int readBuffer(char *buf) {
         long read = readDecimalInput(buf + l);
         char * readS = "";
         itoa(read, readS);
-        if (readS == NULL){
-            printErrorMessage(TEST_PROCESSES_COMMAND, "No argument received");
-            printNewline();
-            return 1;
-        }
         char *argv[] = {readS};
         ProcessesTest(argv);
     } else if (!strcmp(buf, TEST_PRIORITY_COMMAND)){
@@ -387,11 +394,6 @@ int readBuffer(char *buf) {
         long read = readDecimalInput(buf + l);
         char * readS = "";
         itoa(read, readS);
-        if (readS == NULL){
-            printErrorMessage(TEST_MM_COMMAND, "No argument received");
-            printNewline();
-            return 1;
-        }
         char *argv[] = {readS};
         testMemory(argv);
     } else if (!strncmp(buf, TEST_SYNC_COMMAND, l = strlen(TEST_SYNC_COMMAND))) {
@@ -404,12 +406,21 @@ int readBuffer(char *buf) {
         if (times == -1)
             return 1;
         char * arg = itoa2(times);
-        long number = readDecimalInput(buf + l + strlen(arg) + 1);
-        if (number == -1)
+        if (arg == NULL){
+            printErrorMessage(buf, "Error allocating memory");
+            printNewline();
             return 1;
+        }
+        long number = readDecimalInput(buf + l + strlen(arg) + 1);
+        if (number == -1){
+            free(arg);
+            return 1;
+        }
         char * arg1 = itoa2(number);
         char * argv[] = {arg, arg1, NULL}; // MUST BE NULL TERMINATED 
         SyncTest(argv);
+        free(arg);
+        free(arg1);
     } else {
         printError(COMMAND_NOT_FOUND_MESSAGE);
         printNewline();
@@ -504,7 +515,7 @@ void SyncTest(char * argv[]) {
 
 long readDecimalInput(char * buf) {
     int i = 0;
-    while (buf[i] != 0 && buf[i] == ' ')
+    while (buf[i] == ' ') // buf[i] != 0 &&
         i++;
     if (buf[i] == 0){
         printErrorMessage(PRINTMEM_COMMAND, "No argument received");
@@ -515,7 +526,7 @@ long readDecimalInput(char * buf) {
     for (; buf[i] != 0 ; i++){
         if (buf[i] >= '0' && buf[i] <= '9') {
             accum = 10*accum + buf[i] - '0';
-        } else if (buf[i] == ' ' || buf[i] == 0) {
+        } else if (buf[i] == ' ') {
             i++;
         } else {
             printErrorMessage(PRINTMEM_COMMAND, "Argument must be a decimal value");

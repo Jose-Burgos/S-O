@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "scheduler.h"
 #include <process.h>
 #include <videoDriver.h>
@@ -267,7 +269,7 @@ static void printNode(nodeP n) {
         "NEW",
         "KILLED"
     };
-    printf("|\t%s\t|\t%d\t|\t%d\t|\t%s\t|\t%p\t|\t%p\t|\t%d\t|\n", n->p->name, n->p->pid, n->p->priority, stateStrings[n->p->state], n->p->stack, n->p->BP, n->p->pid == foreground->p->pid ? 1 : 0);
+    printf("|\t%s\t|\t%d\t|\t%l\t|\t%s\t|\t%p\t|\t%p\t|\t%l\t|\n", n->p->name, n->p->pid, n->p->priority, stateStrings[n->p->state], n->p->stack, n->p->BP, n->p->pid == foreground->p->pid ? 1 : 0);
 }
 
 void printProcesses() {

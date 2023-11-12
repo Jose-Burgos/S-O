@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <videoDriver.h>
 #include <font.h>
 #include <lib.h>
@@ -54,7 +56,7 @@ struct vbe_mode_info_structure {
 static uint32_t uintToBase(uint64_t value, uint8_t *buffer, uint32_t base);
 void printBase(uint64_t value, uint32_t base);
 
-static uint8_t buffer[64] = {'0'};
+static uint8_t buffer[64] = {0}; // {'0'}
 
 static struct vbe_mode_info_structure *screenData = (void *)0x5C00;
 

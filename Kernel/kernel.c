@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <stdint.h>
 #include <string.h>
 #include <lib.h>
@@ -43,7 +45,7 @@ void *initializeKernelBinary() {
     void * endOfModules = loadModules(&endOfKernelBinary, moduleAddresses);
 
     clearBSS(&bss, &endOfKernel - &bss);
-    void * startOfMem = (void *)(((uint8_t *) endOfModules + PageSize - (uint64_t) endOfModules % PageSize));
+    void * startOfMem = (void *)((uint8_t *) endOfModules + PageSize - (uint64_t) endOfModules % PageSize);
 
     initalizeMemoryManager(startOfMem, 0x100000);
 

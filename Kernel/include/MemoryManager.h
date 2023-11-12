@@ -6,8 +6,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-//#define BUDDY
-
 #ifdef BUDDY
 #define TREE_HEIGHT 15
 #define BLOCK_SIZE 512
@@ -30,7 +28,7 @@ typedef struct BuddyInfo {
 } BuddyInfo;
 #else 
 
-#define MIN_BLOCK_SIZE sizeof(MemBlock) + 100
+#define MIN_BLOCK_SIZE (sizeof(MemBlock) + 100)
 typedef struct MemBlock {
     size_t size;
     struct MemBlock *next;

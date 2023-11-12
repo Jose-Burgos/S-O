@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <tron.h>
 
 #define DEFAULT_CANVAS_COLOR BLACK
@@ -46,12 +48,12 @@ void startGame() {
 void playTron(Player *p1, Player *p2, Canvas *canvas) {
 
     drawInfo();
-    int game = 1, oldKey = -1, newKey = -1;
+    int oldKey = -1, newKey = -1;
 
     canvas->board[p1->x][p1->y] = 1;
     canvas->board[p2->x][p2->y] = 1;
 
-    while (game) {
+    while (1) {
 
         newKey = getKey();
 
@@ -236,8 +238,6 @@ void drawScores() {
 
     char* scoreP1Msg = "Player 1: ";
     char scoreP1[2];
-    recWidth = 110;
-    recHeight = 40;
     x = getScreenWidth()/2 + 149; 
     y = getScreenHeight() - 170 - recHeight/2;
     lineAt = y/FONT_SIZE + 1;
