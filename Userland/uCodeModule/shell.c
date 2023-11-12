@@ -26,7 +26,7 @@
 #define DEC_FONT_SIZE_COMMAND "dec-font"
 #define INFOREG_COMMAND "inforeg"
 #define PRINTMEM_COMMAND "printmem"
-#define PRINT_HEAP_STATUS_COMMAND "mem"
+#define PRINT_MEM_STATUS_COMMAND "mem"
 #define PID_COMMAND "pid"
 #define PS_COMMAND "ps"
 #define LOOP_COMMAND "loop"
@@ -243,9 +243,12 @@ int readBuffer(char *buf) {
         // Lower font size
         int count = 0;
         for (; decreaseFontSize() ;count++);
-
-        mainTron();             // Call tron game
-
+        char *argv[] = {NULL};
+        if (exec("tron", argv, &mainTron, 1, 1, fd)) {
+            printErrorMessage(buf, "Error creating process");
+            printNewline();
+        }
+        waitpid();
         // Reset font size to previous value
         for (int i = 0 ; i < count ; i++)
             increaseFontSize();
@@ -280,9 +283,14 @@ int readBuffer(char *buf) {
             printNewline();
         } else
             clear();
-    } else if (!strcmp(buf, INFOREG_COMMAND))
-        printInforeg();
-    else if (!strcmp(buf, DIVIDE_BY_ZERO)){
+    } else if (!strcmp(buf, INFOREG_COMMAND)) {
+        char *argv[] = {NULL};
+        if (exec("inforeg", argv, &printInforeg, 1, 1, fd) == -1){
+            printErrorMessage(buf, "Error printing registers");
+            printNewline();
+        }
+        waitpid();
+    } else if (!strcmp(buf, DIVIDE_BY_ZERO)){
         testDivideByZeroException();
         return 0;
     } else if (!strcmp(buf, INVALID_OP)){
@@ -327,7 +335,8 @@ int readBuffer(char *buf) {
             printNewline();
             return 1;
         }
-        long priority = readDecimalInput(buf + l + 2);
+        char * aux = itoa2(pid);
+        long priority = readDecimalInput(buf + l + strlen(aux) + 1);
         if (priority == -1)
             return 1;
         nice(priority, pid);
@@ -365,7 +374,7 @@ int readBuffer(char *buf) {
         ProcessesTest(argv);
     } else if (!strcmp(buf, TEST_PRIORITY_COMMAND)){
         PrioTest();
-    } else if (!strcmp(buf, PRINT_HEAP_STATUS_COMMAND)) {
+    } else if (!strcmp(buf, PRINT_MEM_STATUS_COMMAND)) {
         memStatus();
     } else if (!strcmp(buf, PID_COMMAND)) {
         printf("PID: %d\n", getpid());
@@ -395,7 +404,7 @@ int readBuffer(char *buf) {
         if (times == -1)
             return 1;
         char * arg = itoa2(times);
-        long number = readDecimalInput(buf + l + 2);
+        long number = readDecimalInput(buf + l + strlen(arg) + 1);
         if (number == -1)
             return 1;
         char * arg1 = itoa2(number);
