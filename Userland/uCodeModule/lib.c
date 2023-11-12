@@ -476,6 +476,14 @@ void nice(long priority, long pid) {
 	sys_nice(priority, pid);
 }
 
+long read(uint8_t fd, char *buf, int count) {
+	return sys_read(fd, buf, count);
+}
+
+long write(uint8_t fd, char *s, Color color) {
+	return sys_write(fd, s, color);
+}
+
 // --- Semaphores ---
 
 int sem_open(char *name, int value) {

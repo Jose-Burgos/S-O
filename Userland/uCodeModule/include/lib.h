@@ -7,6 +7,12 @@
 #define true 1
 #define false 0
 
+#define STDIN 0 
+#define STDOUT 1
+#define STDERR 2
+
+#define BUFF_MAX 2048
+
 int strcmp(const char *str1, const char *str2);
 int strncmp (const char *str1, const char *str2, int n);
 int strlen(const char *str1);
@@ -45,6 +51,8 @@ void waitpid();
 void yield();
 void ps();
 void nice(long priority, long pid);
+long read(uint8_t fd, char *buf, int count);
+long write(uint8_t fd, char *s, Color color);
 // --- Semaphores ---
 int sem_open(char *name, int value);
 int sem_wait(char *name);

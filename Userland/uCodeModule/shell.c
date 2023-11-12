@@ -7,6 +7,10 @@
 #include <tron.h>
 #include "../tests/include/tst.h"
 #include <greets.h>
+#include <cat.h>
+#include <wc.h>
+#include <phylo.h>
+#include <filter.h>
 
 #define COMMAND_CHAR "$> "
 #define CURSOR "|"
@@ -35,10 +39,18 @@
 #define KILL_COMMAND "kill"
 #define NICE_COMMAND "nice"
 #define BLOCK_COMMAND "block" 
+#define CAT_COMMAND "cat"
+#define WC_COMMAND "wc"
+#define FILTER_COMMAND "filter"
+#define PHYLO_COMMAND "phylo"
 #define TEST_MM_COMMAND "test-mm"
 #define TEST_PROCESSES_COMMAND "test-processes"
 #define TEST_PRIORITY_COMMAND "test-priority"
 #define TEST_SYNC_COMMAND "test-sync"
+#define AMPERSAND "&"
+
+#define MAX_WORDS 80
+#define MAX_WORD_LENGTH 40
 
 #define MAX_TERMINAL_CHARS 124          // 124 = (1024/8) - 4 (number of characters that fit in one line minus the command prompt and cursor characters)
 #define HELP_MESSAGE "HELP:\n\
@@ -62,7 +74,11 @@ inforeg           - Displays the contents of all the registers at a given time.\
 printmem          - Receives a parameter in hexadecimal. Displays the next 32 bytes after the given memory direction given\n\
 mem               - Prints the status of the heap\n\
 pid               - Prints the pid of the current process\n\
+cat               - Prints the contents of a given input\n\
+wc                - Prints the number of lines of the input\n\
 ps                - Prints the status of all processes\n\
+filter             - Filters the vocals of the give input\n\
+phylo             - Simulates the philosopher's problem, to add a new philosopher press 'n' to remove press 'r'\n\
 loop              - Creates a process that prints a message every 10 seconds\n\
 kill              - Receives a pid as a parameter and kills the process with that pid\n\
 nice              - Receives a pid and a priority as parameters and changes the priority of the process with that pid\n\
@@ -84,9 +100,12 @@ test-sync         - Tests synchronization\n"
 #define INCREASE_FONT_FAIL "Maximum font size reached"
 #define DECREASE_FONT_FAIL "Minimum font size reached"
 
+#define IS_FOREGROUND 
+
 #define NEWLINE "\n"
 
 void shell(int argc, char **argv);
+int pipeCmd(char *buf);
 void bufferRead(char **buf);
 int readBuffer(char *buf);
 void printLine(char *str);
@@ -109,7 +128,10 @@ int decreaseFontSize();
 extern void invalidOpcode();
 extern void divideZero();
 
-static unsigned long fd[2] = {0, 1}; // READ, WRITE
+void parseString(const char *str, char words[][MAX_WORD_LENGTH + 1], int *numWords);
+
+static unsigned long fd[2];
+static int is_foreground = true;
 
 void shell(int argc, char **argv) {
     int out = 1;
@@ -120,7 +142,9 @@ void shell(int argc, char **argv) {
         bufferRead(&string);
         printf("\b");
         printNewline();
-        out = readBuffer(string);
+        out = pipeCmd(string);
+        if(out == - 1)
+            out = readBuffer(string);
     }
 }
 
@@ -228,6 +252,37 @@ char * itoa2(long number) {
 }
 
 int readBuffer(char *buf) {
+
+    fd[0] = 0;
+    fd[1] = 1;
+
+    char words[MAX_WORDS][MAX_WORD_LENGTH + 1]; // Array to store the words
+    int numWords;
+
+    parseString(buf, words, &numWords);
+
+    char buf[MAX_WORD_LENGTH + 1];
+    strncpy(buf, words[0], MAX_WORD_LENGTH);
+    buf[MAX_WORD_LENGTH] = '\0';
+
+    char *argv[MAX_WORDS];
+    int numArgs = 0;
+
+    for (int i = 1; i < numWords; i++)
+    {
+        argv[numArgs] = words[i];
+        numArgs++;
+    }
+
+    argv[numArgs] = NULL;
+
+    if (!strcmp(argv[numArgs - 1], AMPERSAND))
+    {
+        is_foreground = 0;
+        argv[numArgs - 1] = NULL;
+        fd[0] = pipeOpen(AMPERSAND);
+    }
+
     int l;
     if (!strcmp(buf, ""));
     else if (!strncmp(buf, PRINTMEM_COMMAND, l = strlen(PRINTMEM_COMMAND))){
@@ -248,8 +303,7 @@ int readBuffer(char *buf) {
         // Lower font size
         int count = 0;
         for (; decreaseFontSize() ;count++);
-        char *argv[] = {NULL};
-        if (exec("tron", argv, &mainTron, 1, 1, fd)) {
+        if (exec("tron", argv, &mainTron, 1, is_foreground, fd)) {
             printErrorMessage(buf, "Error creating process");
             printNewline();
         }
@@ -289,8 +343,7 @@ int readBuffer(char *buf) {
         } else
             clear();
     } else if (!strcmp(buf, INFOREG_COMMAND)) {
-        char *argv[] = {NULL};
-        if (exec("inforeg", argv, &printInforeg, 1, 1, fd) == -1){
+        if (exec("inforeg", argv, &printInforeg, 1, is_foreground, fd) == -1){
             printErrorMessage(buf, "Error printing registers");
             printNewline();
         }
@@ -305,8 +358,7 @@ int readBuffer(char *buf) {
         clear();
         return 0;
     } else if (!strcmp(buf, PS_COMMAND)){
-        char *argv[] = {NULL};
-        if (exec("ps", argv, &ps, 1, 1, fd) == -1){
+        if (exec("ps", argv, &ps, 1, is_foreground, fd) == -1){
             printErrorMessage(buf, "Error printing processes");
             printNewline();
         } 
@@ -363,11 +415,27 @@ int readBuffer(char *buf) {
             return 1;
         block(pid);
     } else if (!strcmp(buf, LOOP_COMMAND)){
-        char *argv[] = {NULL};
         int pid;
         if ((pid = exec("greets", argv, &greets, 1, 0, fd)) == -1) {
             printErrorMessage(buf, "Error creating process");
         }
+        return pid;
+    } else if (!strcmp(buf, CAT_COMMAND)) {
+        int toReturn = exec("cat", argv, &cat, 1, is_foreground, fd);
+        waitpid();
+        return toReturn;
+    } else if (!strcmp(buf, WC_COMMAND)) {
+        int toReturn = exec("wc", argv, &wc, 1, is_foreground, fd);
+        waitpid();
+        return toReturn;
+    } else if (!strcmp(buf, PHYLO_COMMAND)) {
+        int toReturn = exec("phylo", argv, &phylo, 1, is_foreground, fd);
+        waitpid();
+        return toReturn;
+    } else if (!strcmp(buf, FILTER_COMMAND)) {
+        int toReturn = exec("filter", argv, &filter, 1, is_foreground, fd);
+        waitpid();
+        return toReturn;
     } else if (!strncmp(buf, TEST_PROCESSES_COMMAND, l = strlen(TEST_PROCESSES_COMMAND))){
         if (buf[l] != ' ' && buf[l] != 0){
             printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
@@ -535,4 +603,117 @@ long readDecimalInput(char * buf) {
         }
     }
     return accum;
+}
+
+int pipeCmd(char *buf)
+{
+    if (!strchr(buf, '|') != 0)
+        return -1;
+
+    char *left;
+    char *right;
+
+    int totalLength = strlen(buf);
+
+    int delimiterPos = -1;
+    for (int i = 0; i < totalLength; i++)
+    {
+        if (buf[i] == '|')
+        {
+            delimiterPos = i;
+            break;
+        }
+    }
+
+    if (delimiterPos == -1)
+    {
+        left = NULL;
+        right = NULL;
+        return -1;
+    }
+
+    left = malloc((delimiterPos + 1) * sizeof(char));
+    if (left == NULL)
+        return -1;
+
+    strncpy(left, buf, delimiterPos);
+    (left)[delimiterPos] = '\0';
+
+    right = malloc((totalLength - delimiterPos) * sizeof(char));
+    if (right == NULL) {
+        free(left);
+        return -1;
+    }
+
+    strncpy(right, buf + delimiterPos + 1, totalLength - delimiterPos);
+    (right)[totalLength - delimiterPos - 1] = '\0';
+
+    int fd = pipe_open("pipes");
+
+    long leftPid = readBuffer(left, 0, fd, 0);
+    if (leftPid == -1)
+    {
+        free(left);
+        free(right);
+        return 2;
+    }
+
+    yield();
+
+    long rightPid = readBuffer(right, fd, 1, 1);
+    if (rightPid == -1)
+    {
+        free(left);
+        free(right);
+        kill(leftPid);
+        return 3;
+    }
+
+    free(left);
+    free(right);
+    pipe_close(fd);
+
+    return 1;
+}
+
+void parseString(const char *str, char words[][MAX_WORD_LENGTH + 1], int *numWords)
+{
+    *numWords = 0; 
+
+    while (*str != '\0' && *numWords < MAX_WORDS)
+    {
+        while (*str == ' ')
+        {
+            str++; 
+        }
+
+        if (*str == '\0')
+        {
+            break; // end of string
+        }
+
+        const char *wordStart = str; // Start of the current word
+
+        while (*str != ' ' && *str != '\0')
+        {
+            str++; 
+        }
+
+        const char *wordEnd = str - 1; 
+
+        int wordLength = wordEnd - wordStart + 1;
+        if (wordLength > MAX_WORD_LENGTH)
+        {
+            wordLength = MAX_WORD_LENGTH; // If it exceeds the maximum length, truncate
+        }
+
+        for (int i = 0; i < wordLength; i++)
+        {
+            words[*numWords][i] = wordStart[i]; // Copy the word into the array
+        }
+
+        words[*numWords][wordLength] = '\0'; 
+        (*numWords)++;                      
+    }
+    words[*numWords][0] = '\0';
 }
