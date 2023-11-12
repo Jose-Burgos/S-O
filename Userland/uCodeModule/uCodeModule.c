@@ -10,7 +10,9 @@ char *v = (char *)0xB8000 + 79 * 2;
 int main() {
     clear();
     char *argv[] = {NULL};
-    int pid = exec("shell", argv, &shell, 5, 1);
+    unsigned long fd[2] = {0, 1}; // READ, WRITE
+
+    int pid = exec("shell", argv, &shell, 5, 1, fd);
 
     if (pid == -1) {
         printf("uCodeModule %s\n", "Error creating shell process");

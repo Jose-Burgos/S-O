@@ -107,6 +107,8 @@ int decreaseFontSize();
 extern void invalidOpcode();
 extern void divideZero();
 
+static unsigned long fd[2] = {0, 1}; // READ, WRITE
+
 void shell(int argc, char **argv) {
     int out = 1;
 
@@ -291,7 +293,7 @@ int readBuffer(char *buf) {
         return 0;
     } else if (!strcmp(buf, PS_COMMAND)){
         char *argv[] = {NULL};
-        if (exec("ps", argv, &ps, 1, 1) == -1){
+        if (exec("ps", argv, &ps, 1, 1, fd) == -1){
             printErrorMessage(buf, "Error printing processes");
             printNewline();
         } 
@@ -342,7 +344,7 @@ int readBuffer(char *buf) {
     } else if (!strcmp(buf, LOOP_COMMAND)){
         char *argv[] = {NULL};
         int pid;
-        if ((pid = exec("greets", argv, &greets, 1, 1)) == -1) {
+        if ((pid = exec("greets", argv, &greets, 1, 0, fd)) == -1) {
             printErrorMessage(buf, "Error creating process");
         }
     } else if (!strncmp(buf, TEST_PROCESSES_COMMAND, l = strlen(TEST_PROCESSES_COMMAND))){
@@ -451,7 +453,7 @@ int decreaseFontSize(){
 }
 
 void testMemory(char * argv[]) {
-    int pid = exec("test_mm", argv, &test_mm, 1, 1);
+    int pid = exec("test_mm", argv, &test_mm, 1, 1, fd);
     if (pid == -1) {
         printErrorMessage("test_mm", "Error creating process");
         printNewline();
@@ -461,7 +463,7 @@ void testMemory(char * argv[]) {
 }
 
 void ProcessesTest(char * argv[]) {
-    int pid = exec("test_processes", argv, &test_processes, 1, 1);
+    int pid = exec("test_processes", argv, &test_processes, 1, 1, fd);
     if (pid == -1) {
         printErrorMessage("test_processes", "Error creating process");
         printNewline();
@@ -472,7 +474,7 @@ void ProcessesTest(char * argv[]) {
 
 void PrioTest() {
     char *argv[] = {NULL};
-    int pid = exec("test_priority", argv, &test_prio, 1, 1);
+    int pid = exec("test_priority", argv, &test_prio, 1, 1, fd);
     if (pid == -1) {
         printErrorMessage("test_priority", "Error creating process");
         printNewline();
@@ -482,7 +484,7 @@ void PrioTest() {
 }
 
 void SyncTest(char * argv[]) {
-    int pid = exec("test_sync", argv, &test_sync, 1, 1);
+    int pid = exec("test_sync", argv, &test_sync, 1, 1, fd);
     if (pid == -1) {
         printErrorMessage("test_sync", "Error creating process");
         printNewline();

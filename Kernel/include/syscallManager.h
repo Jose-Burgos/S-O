@@ -11,10 +11,11 @@
 #include <process.h>
 #include "semaphore.h"
 #include "pipe.h"
+#include "lib.h"
 
 #define STDIN 0
-#define STDERR 1
-#define STDOUT 0
+#define STDOUT 1
+#define STDERR 2
 
 
 #define REGISTER_NUM 17
@@ -40,7 +41,7 @@ void * sys_malloc(uint64_t memSize);
 void sys_free(void * ptr);
 void sys_memory_status(info_Mem * info);
 // --- Processes ---
-uint64_t sys_exec(char *name,  char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag);
+uint64_t sys_exec(char *name,  char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag, uint64_t fd[2]);
 uint64_t sys_kill_process(uint64_t pid);
 uint64_t sys_block_process(uint64_t pid);
 uint64_t sys_process_ready(uint64_t pid);

@@ -3,10 +3,6 @@
 #include <stdarg.h>
 #include <syscallManager.h>
 
-#define STDOUT 0
-#define STDERR 1
-#define STDIN 0
-
 void * memset(void * destination, int32_t c, uint64_t length) {
 	uint8_t chr = (uint8_t)c;
 	char * dst = (char*)destination;

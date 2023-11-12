@@ -11,13 +11,15 @@
 
 int64_t prio[TOTAL_PROCESSES] = {LOWEST, MEDIUM, HIGHEST};
 
+static unsigned long fd[2] = {0, 1}; // READ, WRITE
+
 void test_prio(){
     int64_t pids[TOTAL_PROCESSES];
     char *argv[] = {NULL};
     uint64_t i;
     printf("\nCREATING PROCESSES...\n");
     for (i = 0; i < TOTAL_PROCESSES; i++)
-        pids[i] = exec("endless_loop_print", argv, &endless_loop_print, HIGHEST, 0);
+        pids[i] = exec("endless_loop_print", argv, &endless_loop_print, HIGHEST, 0, fd);
     shortSleep(225);
     bussy_wait(WAIT);
     printf("\nCHANGING PRIORITIES...\n");

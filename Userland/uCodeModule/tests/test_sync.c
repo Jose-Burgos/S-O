@@ -14,6 +14,8 @@ void slowInc(int64_t *p, int64_t inc) {
   *p = aux;
 }
 
+static unsigned long fd[2] = {0, 1}; // READ, WRITE
+
 uint64_t my_process_inc(uint64_t argc, char *argv[]) {
   uint64_t n;
   int8_t inc;
@@ -63,8 +65,8 @@ uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem, 0}
 
   uint64_t i;
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-    pids[i] = exec("my_process_inc", argvDec, &my_process_inc, 0, 0);
-    pids[i + TOTAL_PAIR_PROCESSES] = exec("my_process_inc", argvInc, &my_process_inc, 0, 0);
+    pids[i] = exec("my_process_inc", argvDec, &my_process_inc, 0, 0, fd);
+    pids[i + TOTAL_PAIR_PROCESSES] = exec("my_process_inc", argvInc, &my_process_inc, 0, 0, fd);
   }
 
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {

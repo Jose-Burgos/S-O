@@ -21,10 +21,9 @@ typedef node * nodeP;
 void init_scheduler();
 uint64_t schedule(uint64_t SP);
 void disableScheduler();
-uint64_t addProcess(char *name, char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag);
+uint64_t addProcess(char *name, char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag, uint64_t fd[2]);
 void changePriority(uint64_t priority, uint64_t pid);
 void killCurrentProcess();
-//kill a specific process
 uint64_t killProcess(uint64_t pid);
 void blockCurrentProcess();
 uint64_t blockProcess(uint64_t pid);
@@ -39,5 +38,7 @@ uint64_t _xchg(uint64_t *dest, uint64_t value);
 uint64_t _cmpxchg(uint64_t *dest, uint64_t value, uint64_t test);
 void _forceScheduler(void);
 void enableScheduler();
+uint64_t pWrite();
+uint64_t pRead();
 
 #endif

@@ -36,7 +36,7 @@ void * malloc(unsigned int memSize);
 void free(void * ptr);
 void memStatus();
 // --- Processes ---
-uint64_t exec(char *name,  char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag);
+uint64_t exec(char *name,  char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag, uint64_t fd[2]);
 uint64_t kill(uint64_t pid);
 uint64_t block(uint64_t pid);
 uint64_t ready(uint64_t pid);

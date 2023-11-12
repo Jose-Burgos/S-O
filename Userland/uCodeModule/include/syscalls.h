@@ -4,9 +4,9 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#define STDOUT 0
-#define STDERR 1
 #define STDIN 0
+#define STDOUT 1
+#define STDERR 2
 #define MAX_PROC 50
 #define NAME_CHAR_LIMIT 1024
 
@@ -49,7 +49,7 @@ void * sys_malloc(int size);
 void sys_free(void * ptr);
 void sys_memorystatus(info_mem * info);
 // --- Processes ---
-uint64_t sys_exec(char *name,  char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag);
+uint64_t sys_exec(char *name,  char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag, uint64_t fd[2]);
 uint64_t sys_kill_process(uint64_t pid);
 uint64_t sys_block_process(uint64_t pid);
 uint64_t sys_process_ready(uint64_t pid);

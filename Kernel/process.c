@@ -10,7 +10,7 @@ uint64_t count_args(char **argv);
 char **copy_args(int argc, char **argv);
 void free_args(char **argv);
 
-processP createProcess(char *name, char **argv, void *entryPoint, uint64_t priority) {
+processP createProcess(char *name, char **argv, void *entryPoint, uint64_t priority, uint64_t fd[2]) {
     processP p = malloc(sizeof(process));
     if(p == NULL) {
         return NULL;
@@ -32,6 +32,8 @@ processP createProcess(char *name, char **argv, void *entryPoint, uint64_t prior
     p->stack = stack;
     p->children = 0;
     p->priority = priority;
+    p->fd[READ] = fd[READ];
+    p->fd[WRITE] = fd[WRITE];
 
     sem_wait(PID_SEM); // TODO: sync not tested
     p->pid = current_pid++;
@@ -42,7 +44,7 @@ processP createProcess(char *name, char **argv, void *entryPoint, uint64_t prior
     return p;
 }
 
-void freeProcess(processP p) {
+void freeProcess(processP p) { // TODO: sys_write & EOF
     free(p->stack);
     for(int i=0; p->argv[i]!=NULL; i++) {
         free(p->argv[i++]);

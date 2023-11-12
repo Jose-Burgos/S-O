@@ -33,9 +33,10 @@ void init_scheduler() {
         printString((uint8_t *)"Memory Error", RED);
         return;
     }
+    uint64_t fd[2] = {0, 1}; // READ, WRITE
 
     char *argv[] = {NULL};
-    first->p = (process *)createProcess("IDLE", argv, &idle, QUANTUM_MAX);
+    first->p = (process *)createProcess("IDLE", argv, &idle, QUANTUM_MAX, fd);
     first->quantums = QUANTUM_MAX;
     root = first;
     first->next = root;
@@ -108,10 +109,10 @@ static void runNext(nodeP from) {
     currentNode->quantums = currentNode->p->priority;
 }
 
-uint64_t addProcess(char *name, char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag) {
+uint64_t addProcess(char *name, char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag, uint64_t fd[2]) {
     disableScheduler();
 
-    processP p = createProcess(name, argv, entryPoint, priority);
+    processP p = createProcess(name, argv, entryPoint, priority, fd);
     
     sem_wait(CHILDREN_SEM);
     currentNode->p->children++;
@@ -269,7 +270,7 @@ static void printNode(nodeP n) {
     printf("|\t%s\t|\t%d\t|\t%d\t|\t%s\t|\t%p\t|\t%p\t|\t%d\t|\n", n->p->name, n->p->pid, n->p->priority, stateStrings[n->p->state], n->p->stack, n->p->BP, n->p->pid == foreground->p->pid ? 1 : 0);
 }
 
-void printProcesses() { // TODO: print the list from the buttom to the top
+void printProcesses() {
     nodeP aux = root;
     printString((uint8_t *)"|\tProc:\t|\tID:\t|\tPrio:\t|\tState:\t|\tStack:\t|\tBP:\t|\tFG:\t|\n", GRAY);
     printNode(aux);
@@ -286,4 +287,11 @@ processP getCurrentProcess() {
 
 uint64_t getCurrentPID() {
     return currentNode != NULL ? currentNode->p->pid : 0;
+}
+uint64_t pWrite() {
+    return currentNode->p->fd[WRITE];
+}
+
+uint64_t pRead() {
+    return currentNode->p->fd[READ];
 }

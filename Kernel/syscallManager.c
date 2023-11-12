@@ -13,11 +13,22 @@ extern uint64_t registers[REGISTER_NUM];
 
 
 uint64_t sys_write(uint8_t fd, char *string, Color color) {
-    if (fd == STDERR)
+    if (fd == STDERR) {
         color = RED;
+        fd = STDOUT;
+    }
+
+    uint64_t pIsWriting = pWrite();
+
+    if (fd == STDIN)
+        return 0;
     
-    printString((uint8_t *)string, color);
-    return 0;
+    if (pIsWriting == STDOUT) {
+        printString((uint8_t *)string, color);
+        return 0;
+    }
+    
+    return pipeWrite(pIsWriting, string, strleng(string)); // - 3??
 }
 
 
@@ -31,9 +42,18 @@ int getKbdBuffer(char * buf, uint32_t count, int * pos){
 }
 
 uint64_t sys_read(uint8_t fd, char * buf, uint32_t count) {
-    if (fd != 0)
+    uint64_t pIsReading;
+    if (fd == STDIN || fd == STDOUT || fd == STDERR) {
+        pIsReading = pRead();
+    } else {
+        pIsReading = fd;
+    }
+    if (pIsReading == STDOUT || pIsReading == STDERR) {
         return 0;
-    
+    }
+    if (pIsReading != 0) {
+        return pipeRead(pIsReading, buf, count); // -3 ??
+    }
     int i = 0;
     int read = 0;
     clearKeyboardBuffer();
@@ -50,7 +70,7 @@ uint64_t sys_read(uint8_t fd, char * buf, uint32_t count) {
 }
 
 uint64_t sys_timedRead(uint8_t fd, char * buf, uint32_t count, uint32_t millis) {
-    if (fd != STDIN)
+    if (fd != pRead())
         return 0;
     
     int i = 0;
@@ -178,8 +198,8 @@ void sys_memory_status(info_Mem * info) {
 
 // --- Process ---
 
-uint64_t sys_exec(char *name,  char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag) {
-    return addProcess(name, argv, entryPoint, priority, fg_flag);
+uint64_t sys_exec(char *name,  char **argv, void *entryPoint, uint64_t priority, uint64_t fg_flag, uint64_t fd[2]) {
+    return addProcess(name, argv, entryPoint, priority, fg_flag, fd);
 }
 
 uint64_t sys_kill_process(uint64_t pid) {
