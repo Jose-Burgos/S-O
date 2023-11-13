@@ -305,7 +305,7 @@ int readBuffer(char *input, int read_fd, int write_fd, int fg_flag) {
             printErrorMessage(buf, "Error creating process");
             printNewline();
         }
-        waitpid();
+        askWait(fg_flag);
         // Reset font size to previous value
         for (int i = 0 ; i < count ; i++)
             increaseFontSize();
@@ -345,7 +345,7 @@ int readBuffer(char *input, int read_fd, int write_fd, int fg_flag) {
             printErrorMessage(buf, "Error printing registers");
             printNewline();
         }
-        waitpid();
+        askWait(fg_flag);
     } else if (!strcmp(buf, DIVIDE_BY_ZERO)){
         testDivideByZeroException();
         return 0;
@@ -360,7 +360,7 @@ int readBuffer(char *input, int read_fd, int write_fd, int fg_flag) {
             printErrorMessage(buf, "Error printing processes");
             printNewline();
         } 
-        waitpid();
+        askWait(fg_flag);
     } else if (!strcmp(buf, KILL_COMMAND)){
         if (buf[l] != ' ' && buf[l] != 0){
             printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
@@ -391,23 +391,23 @@ int readBuffer(char *input, int read_fd, int write_fd, int fg_flag) {
         return pid;
     } else if (!strcmp(buf, CAT_COMMAND)) {
         int toReturn = exec("cat", argv, &cat, 1, fg_flag, fd);
-        waitpid();
+        askWait(fg_flag);
         return toReturn;
     } else if (!strcmp(buf, WC_COMMAND)) {
         int toReturn = exec("wc", argv, &wc, 1, fg_flag, fd);
-        waitpid();
+        askWait(fg_flag);
         return toReturn;
     } else if (!strcmp(buf, PHYLO_COMMAND)) {
         int toReturn = exec("phylo", argv, &phylo, 1, fg_flag, fd);
-        waitpid();
+        askWait(fg_flag);
         return toReturn;
     } else if (!strcmp(buf, FILTER_COMMAND)) {
         int toReturn = exec("filter", argv, &filter, 1, fg_flag, fd);
-        waitpid();
+        askWait(fg_flag);
         return toReturn;
     } else if (!strcmp(buf, TEST_PROCESSES_COMMAND)){
         int toReturn = exec("test_processes", argv, &test_processes, 1, fg_flag, fd);
-        waitpid();
+        askWait(fg_flag);
         return toReturn;
     } else if (!strcmp(buf, TEST_PRIORITY_COMMAND)){
         PrioTest();
@@ -418,11 +418,11 @@ int readBuffer(char *input, int read_fd, int write_fd, int fg_flag) {
     } else if (!strcmp(buf, TEST_MM_COMMAND))
     {
         int toReturn = exec("test_mm", argv, &test_mm, 1, fg_flag, fd);
-        waitpid();
+        askWait(fg_flag);
         return toReturn;
     } else if(!strcmp(buf, TEST_SYNC_COMMAND)) {
         int toReturn = exec("test_sync", argv, &test_sync, 1, fg_flag, fd);
-        waitpid();
+        askWait(fg_flag);
         return toReturn;
     } else {
         printError(COMMAND_NOT_FOUND_MESSAGE);
@@ -444,6 +444,12 @@ void helpCommand(){
 
 void printNewline(){
     printString(NEWLINE,WHITE);
+}
+
+void askWait(int fg_flag) {
+    if(fg_flag == 1) {
+        waitpid();
+    }
 }
 
 void testDivideByZeroException(){
@@ -473,47 +479,6 @@ int increaseFontSize(){
 
 int decreaseFontSize(){
     return sys_changeFontSize(DECREASE);
-}
-
-void testMemory(char * argv[]) {
-    int pid = exec("test_mm", argv, &test_mm, 1, 1, fd);
-    if (pid == -1) {
-        printErrorMessage("test_mm", "Error creating process");
-        printNewline();
-        return;
-    }
-    waitpid();
-}
-
-void ProcessesTest(char * argv[]) {
-    int pid = exec("test_processes", argv, &test_processes, 1, 1, fd);
-    if (pid == -1) {
-        printErrorMessage("test_processes", "Error creating process");
-        printNewline();
-        return;
-    }
-    waitpid();
-}
-
-void PrioTest() {
-    char *argv[] = {NULL};
-    int pid = exec("test_priority", argv, &test_prio, 1, 1, fd);
-    if (pid == -1) {
-        printErrorMessage("test_priority", "Error creating process");
-        printNewline();
-        return;
-    }
-    waitpid();
-}
-
-void SyncTest(char * argv[]) {
-    int pid = exec("test_sync", argv, &test_sync, 1, 1, fd);
-    if (pid == -1) {
-        printErrorMessage("test_sync", "Error creating process");
-        printNewline();
-        return;
-    }
-    waitpid();
 }
 
 long readDecimalInput(char * buf) {
