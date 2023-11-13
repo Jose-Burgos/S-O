@@ -30,7 +30,7 @@ uint64_t sys_write(uint8_t fd, char *string, Color color) {
         return 0;
     }
     
-    return pipeWrite(pIsWriting - 3, string, strleng(string)); 
+    return pipeWrite(pIsWriting, string, strleng(string)); 
 }
 
 
@@ -54,7 +54,7 @@ uint64_t sys_read(uint8_t fd, char * buf, uint32_t count) {
         return 0;
     }
     if (pIsReading != 0) {
-        return pipeRead(pIsReading - 3, buf, count); 
+        return pipeRead(pIsReading, buf, count); 
     }
     int i = 0;
     int read = 0;
@@ -62,7 +62,7 @@ uint64_t sys_read(uint8_t fd, char * buf, uint32_t count) {
     while (i < count - 1){
         read = getKbdBuffer(buf, count, &i);
         if (read && (buf[i-1] == '\n' || buf[i-1] == 0)){
-            buf[i-1] = '\n';
+            buf[i-1] = 0;
             return i;
         }
         _hlt();

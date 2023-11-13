@@ -116,8 +116,8 @@ void testInvalidOpException();
 void testDivideByZeroException();
 void testMemory(char * argv[]);
 void ProcessesTest(char * argv[]);
-void PrioTest();
 void SyncTest(char * argv[]);
+void askWait(int fg_flag);
 
 void printInforeg();
 void printErrorMessage(char * program, char * errorMessage);
@@ -280,11 +280,9 @@ int readBuffer(char *input, int read_fd, int write_fd, int fg_flag) {
         argv[numArgs - 1] = NULL;
         fd[0] = pipeOpen(AMPERSAND);
     }
-
-    int l;
     if (!strcmp(buf, ""));
     else if (!strcmp(buf,PRINTMEM_COMMAND)) {
-        printmem(buf + l);
+        printmem(buf + strlen(PRINTMEM_COMMAND));
     }
     else if (!strcmp(buf, HELP_COMMAND))
         helpCommand();
@@ -351,33 +349,19 @@ int readBuffer(char *input, int read_fd, int write_fd, int fg_flag) {
         clear();
         return 0;
     } else if (!strcmp(buf, PS_COMMAND)){
-        if (exec("ps", argv, &ps, 1, fg_flag, fd) == -1){
-            printErrorMessage(buf, "Error printing processes");
-            printNewline();
-        } 
-        askWait(fg_flag);
+        ps();
     } else if (!strcmp(buf, KILL_COMMAND)){
-        if (buf[l] != ' ' && buf[l] != 0){
-            printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
-            printNewline();
-            return 1;
-        }
-        long pid = readDecimalInput(buf + l);
-        if (pid == -1)
-            return 1;
-        kill(pid);
+        kill(atoul(argv[0]));
     } else if (!strcmp(buf, NICE_COMMAND)){
         nice(atoul(argv[1]), atoul(argv[0]));    
     } else if (!strcmp(buf,BLOCK_COMMAND)) {
-        long pid = readDecimalInput(buf + l);
-        if (pid == -1)
-            return 1;
-        block(pid);
+        block(atoul(argv[0]));
     } else if (!strcmp(buf, LOOP_COMMAND)){
         int pid;
         if ((pid = exec("greets", argv, &greets, 1, fg_flag, fd)) == -1) {
             printErrorMessage(buf, "Error creating process");
         }
+        askWait(fg_flag);
         return pid;
     } else if (!strcmp(buf, CAT_COMMAND)) {
         int toReturn = exec("cat", argv, &cat, 1, fg_flag, fd);
@@ -400,7 +384,9 @@ int readBuffer(char *input, int read_fd, int write_fd, int fg_flag) {
         askWait(fg_flag);
         return toReturn;
     } else if (!strcmp(buf, TEST_PRIORITY_COMMAND)){
-        PrioTest();
+        int toReturn = exec("test_priority", argv, &test_prio, 1, fg_flag, fd);
+        askWait(fg_flag);
+        return toReturn;
     } else if (!strcmp(buf, PRINT_MEM_STATUS_COMMAND)) {
         memStatus();
     } else if (!strcmp(buf, PID_COMMAND)) {
