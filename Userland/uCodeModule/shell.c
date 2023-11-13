@@ -361,7 +361,7 @@ int readBuffer(char *input, int read_fd, int write_fd, int fg_flag) {
             printNewline();
         } 
         waitpid();
-    } else if (!strncmp(buf, KILL_COMMAND, l = strlen(KILL_COMMAND))){
+    } else if (!strcmp(buf, KILL_COMMAND)){
         if (buf[l] != ' ' && buf[l] != 0){
             printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
             printNewline();
@@ -371,37 +371,40 @@ int readBuffer(char *input, int read_fd, int write_fd, int fg_flag) {
         if (pid == -1)
             return 1;
         kill(pid);
-    } else if (!strncmp(buf, NICE_COMMAND, l = strlen(NICE_COMMAND))){
-        if (buf[l] != ' ' && buf[l] != 0){
-            printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
-            printNewline();
-            return 1;
-        }
-        long pid = readDecimalInput(buf + l);
-        if (pid == -1)
-            return 1;
-        if (buf[l] == 0){
-            printErrorMessage(buf, "No pid received");
-            printNewline();
-            return 1;
-        }
-        if (buf[l+2] != ' ' && buf[l+2] != 0){
-            printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
-            printNewline();
-            return 1;
-        }
-        char * aux = itoa2(pid);
-        if (aux == NULL){
-            printErrorMessage(buf, "Error allocating memory");
-            printNewline();
-            return 1;
-        }
-        long priority = readDecimalInput(buf + l + strlen(aux) + 1);
-        free(aux);
-        if (priority == -1) {
-            return 1;
-        }
-        nice(priority, pid);
+    } else if (!strcmp(buf, NICE_COMMAND)){
+        // if (buf[l] != ' ' && buf[l] != 0){
+        //     printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
+        //     printNewline();
+        //     return 1;
+        // }
+        // long pid = readDecimalInput(buf + l);
+        // if (pid == -1)
+        //     return 1;
+        // if (buf[l] == 0){
+        //     printErrorMessage(buf, "No pid received");
+        //     printNewline();
+        //     return 1;
+        // }
+        // if (buf[l+2] != ' ' && buf[l+2] != 0){
+        //     printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
+        //     printNewline();
+        //     return 1;
+        // }
+        // char * aux = itoa2(pid);
+        // if (aux == NULL){
+        //     printErrorMessage(buf, "Error allocating memory");
+        //     printNewline();
+        //     return 1;
+        // }
+        // long priority = readDecimalInput(buf + l + strlen(aux) + 1);
+        // free(aux);
+        // if (priority == -1) {
+        //     return 1;
+        // }
+        // nice(priority, pid);
+        int toReturn = exec("change_priority", argv, &nice, 1, fg_flag, fd);
+        waitpid();
+        return toReturn;
     } else if (!strncmp(buf, BLOCK_COMMAND, l = strlen(BLOCK_COMMAND))){
         if (buf[l] != ' ' && buf[l] != 0){
             printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
@@ -434,17 +437,10 @@ int readBuffer(char *input, int read_fd, int write_fd, int fg_flag) {
         int toReturn = exec("filter", argv, &filter, 1, fg_flag, fd);
         waitpid();
         return toReturn;
-    } else if (!strncmp(buf, TEST_PROCESSES_COMMAND, l = strlen(TEST_PROCESSES_COMMAND))){
-        if (buf[l] != ' ' && buf[l] != 0){
-            printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
-            printNewline();
-            return 1;
-        }
-        long read = readDecimalInput(buf + l);
-        char * readS = "";
-        itoa(read, readS);
-        char *argv[] = {readS};
-        ProcessesTest(argv);
+    } else if (!strcmp(buf, TEST_PROCESSES_COMMAND)){
+        int toReturn = exec("test_processes", argv, &test_processes, 1, fg_flag, fd);
+        waitpid();
+        return toReturn;
     } else if (!strcmp(buf, TEST_PRIORITY_COMMAND)){
         PrioTest();
     } else if (!strcmp(buf, PRINT_MEM_STATUS_COMMAND)) {
