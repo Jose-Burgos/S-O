@@ -62,7 +62,7 @@ uint64_t sys_read(uint8_t fd, char * buf, uint32_t count) {
     while (i < count - 1){
         read = getKbdBuffer(buf, count, &i);
         if (read && (buf[i-1] == '\n' || buf[i-1] == 0)){
-            buf[i-1] = '\n';
+            buf[i-1] = 0;
             return i;
         }
         _hlt();

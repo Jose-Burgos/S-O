@@ -65,10 +65,10 @@ void put_fork(SharedData *shared_data, int id)
     sem_post(MUTEX);
 }
 
-int phylo_proc(char * idStr, char * addr) 
+int phylo_proc(int argc, char const * argv[]) 
 {
-    int id = atoul(idStr);
-    SharedData *shared_data = (SharedData *)atoul(addr);
+    size_t id = atoul(argv[0]);
+    SharedData *shared_data = (SharedData *)atoul(argv[1]);
 
     while (1)
     {
@@ -92,10 +92,10 @@ int phylo_proc(char * idStr, char * addr)
 
 void addPhylo(SharedData *shared_data)
 {
-    int id = shared_data->count;
+    size_t id = shared_data->count;
     char idStr[] = "X";
     char addr[64];
-    char *argv_proc[3] = {idStr, addr};
+    char *argv_proc[3] = {idStr, addr, NULL};
     idStr[0] = '0' + id;
     ultoa((unsigned long)shared_data, addr);
 
@@ -118,7 +118,7 @@ void removePhylo(SharedData *shared_data)
     sem_post(shared_data->think_unlock[id]);
 }
 
-int phylo(int argc, char *argv[])
+int phylo()
 {
     SharedData shared_data;
     shared_data.count = INITIAL;
@@ -138,7 +138,7 @@ int phylo(int argc, char *argv[])
     }
     char idStr[] = "X";
     char addr[64];
-    char *argv_proc[2] = {idStr, addr};
+    char *argv_proc[3] = {idStr, addr, NULL};
 
     for (i = 0; i < shared_data.count; i++)
     {
