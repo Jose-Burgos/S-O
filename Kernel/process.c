@@ -37,7 +37,7 @@ processP createProcess(char *name, char **argv, void *entryPoint, uint64_t prior
     p->fd[READ] = fd[READ];
     p->fd[WRITE] = fd[WRITE];
 
-    sem_wait(PID_SEM); // TODO: sync not tested
+    sem_wait(PID_SEM);
     p->pid = current_pid++;
     sem_post(PID_SEM);
     p->parent_pid = getCurrentPID();
@@ -46,7 +46,7 @@ processP createProcess(char *name, char **argv, void *entryPoint, uint64_t prior
     return p;
 }
 
-void freeProcess(processP p) { // TODO: sys_write & EOF
+void freeProcess(processP p) {
     free(p->stack);
     for(int i=0; p->argv[i]!=NULL; i++) {
         free(p->argv[i++]);
