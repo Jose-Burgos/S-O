@@ -451,17 +451,11 @@ int readBuffer(char *input, int read_fd, int write_fd, int fg_flag) {
         memStatus();
     } else if (!strcmp(buf, PID_COMMAND)) {
         printf("PID: %d\n", getpid());
-    } else if (!strncmp(buf, TEST_MM_COMMAND, l = strlen(TEST_MM_COMMAND))){
-        if (buf[l] != ' ' && buf[l] != 0){
-            printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
-            printNewline();
-            return 1;
-        }
-        long read = readDecimalInput(buf + l);
-        char * readS = "";
-        itoa(read, readS);
-        char *argv[] = {readS};
-        testMemory(argv);
+    } else if (!strcmp(buf, TEST_MM_COMMAND))
+    {
+        int toReturn = exec("test_mm", argv, &test_mm, 1, fg_flag, fd);
+        waitpid();
+        return toReturn;
     } else if (!strncmp(buf, TEST_SYNC_COMMAND, l = strlen(TEST_SYNC_COMMAND))) {
         if (buf[l] != ' ' && buf[l] != 0){
             printError(COMMAND_NOT_FOUND_MESSAGE);
