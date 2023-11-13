@@ -106,4 +106,7 @@ docker.sh
 .gdb_history
 
 .config
+PVS-Studio.log
+report.tasks
+strace_out
 
