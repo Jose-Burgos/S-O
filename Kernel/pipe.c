@@ -155,5 +155,5 @@ void freeProcPipe(int *processes, int currentPid) {
 }
 
 char *pipesInfo() {
-    return pipes[0].name; // TODO: return the struct !?
+    return pipes[0].name;
 }
