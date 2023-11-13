@@ -65,10 +65,10 @@ void put_fork(SharedData *shared_data, int id)
     sem_post(MUTEX);
 }
 
-int phylo_proc(int argc, char const *argv[])
+int phylo_proc(char * idStr, char * addr) 
 {
-    int id = atoul(argv[0]);
-    SharedData *shared_data = (SharedData *)atoul(argv[1]);
+    int id = atoul(idStr);
+    SharedData *shared_data = (SharedData *)atoul(addr);
 
     while (1)
     {
@@ -93,10 +93,10 @@ int phylo_proc(int argc, char const *argv[])
 void addPhylo(SharedData *shared_data)
 {
     int id = shared_data->count;
-    char id_str[] = "X";
+    char idStr[] = "X";
     char addr[64];
-    char *argv_proc[3] = {id_str, addr, NULL};
-    id_str[0] = '0' + id;
+    char *argv_proc[3] = {idStr, addr};
+    idStr[0] = '0' + id;
     ultoa((unsigned long)shared_data, addr);
 
     sem_wait(MUTEX);
@@ -136,13 +136,13 @@ int phylo(int argc, char *argv[])
         sem_open(shared_data.hungry_lock[i], 0);
         sem_open(shared_data.think_unlock[i], 0);
     }
-    char id[] = "X";
+    char idStr[] = "X";
     char addr[64];
-    char *argv_proc[3] = {id, addr, NULL};
+    char *argv_proc[2] = {idStr, addr};
 
     for (i = 0; i < shared_data.count; i++)
     {
-        id[0] = '0' + i;
+        idStr[0] = '0' + i;
         ultoa((unsigned long)&shared_data, addr);
         exec("phylo_proc", argv_proc, &phylo_proc, 1, 0, fd);
     }

@@ -283,12 +283,7 @@ int readBuffer(char *input, int read_fd, int write_fd, int fg_flag) {
 
     int l;
     if (!strcmp(buf, ""));
-    else if (!strncmp(buf, PRINTMEM_COMMAND, l = strlen(PRINTMEM_COMMAND))){
-        if (buf[l] != ' ' && buf[l] != 0){
-            printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
-            printNewline();
-            return 1;
-        }
+    else if (!strcmp(buf,PRINTMEM_COMMAND)) {
         printmem(buf + l);
     }
     else if (!strcmp(buf, HELP_COMMAND))
@@ -373,12 +368,7 @@ int readBuffer(char *input, int read_fd, int write_fd, int fg_flag) {
         kill(pid);
     } else if (!strcmp(buf, NICE_COMMAND)){
         nice(atoul(argv[1]), atoul(argv[0]));    
-    } else if (!strncmp(buf, BLOCK_COMMAND, l = strlen(BLOCK_COMMAND))){
-        if (buf[l] != ' ' && buf[l] != 0){
-            printErrorMessage(buf, COMMAND_NOT_FOUND_MESSAGE);
-            printNewline();
-            return 1;
-        }
+    } else if (!strcmp(buf,BLOCK_COMMAND)) {
         long pid = readDecimalInput(buf + l);
         if (pid == -1)
             return 1;
