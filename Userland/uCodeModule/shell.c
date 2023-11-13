@@ -107,7 +107,7 @@ test-sync         - Tests synchronization\n"
 void shell(int argc, char **argv);
 int pipeCmd(char *buf);
 void bufferRead(char **buf);
-int readBuffer(char *buf);
+int readBuffer(char *buf, int read_fd, int write_fd, int fg_flag);
 void printLine(char *str);
 long readDecimalInput(char * buf);
 void helpCommand(void);
@@ -131,11 +131,9 @@ extern void divideZero();
 void parseString(const char *str, char words[][MAX_WORD_LENGTH + 1], int *numWords);
 
 static unsigned long fd[2];
-static int is_foreground = true;
 
 void shell(int argc, char **argv) {
     int out = 1;
-
     while (out) {
         char str[MAX_TERMINAL_CHARS] = {0};
         char *string = str;
@@ -144,7 +142,7 @@ void shell(int argc, char **argv) {
         printNewline();
         out = pipeCmd(string);
         if(out == - 1)
-            out = readBuffer(string);
+            out = readBuffer(string,0,1,1);
     }
 }
 
@@ -251,15 +249,15 @@ char * itoa2(long number) {
 	return str;
 }
 
-int readBuffer(char *buf) {
+int readBuffer(char *input, int read_fd, int write_fd, int fg_flag) {
 
-    fd[0] = 0;
-    fd[1] = 1;
+    fd[0] = read_fd;
+    fd[1] = write_fd;
 
     char words[MAX_WORDS][MAX_WORD_LENGTH + 1]; // Array to store the words
     int numWords;
 
-    parseString(buf, words, &numWords);
+    parseString(input, words, &numWords);
 
     char buf[MAX_WORD_LENGTH + 1];
     strncpy(buf, words[0], MAX_WORD_LENGTH);
@@ -278,7 +276,7 @@ int readBuffer(char *buf) {
 
     if (!strcmp(argv[numArgs - 1], AMPERSAND))
     {
-        is_foreground = 0;
+        fg_flag = 0;
         argv[numArgs - 1] = NULL;
         fd[0] = pipeOpen(AMPERSAND);
     }
@@ -303,7 +301,7 @@ int readBuffer(char *buf) {
         // Lower font size
         int count = 0;
         for (; decreaseFontSize() ;count++);
-        if (exec("tron", argv, &mainTron, 1, is_foreground, fd)) {
+        if (exec("tron", argv, &mainTron, 1, fg_flag, fd)) {
             printErrorMessage(buf, "Error creating process");
             printNewline();
         }
@@ -343,7 +341,7 @@ int readBuffer(char *buf) {
         } else
             clear();
     } else if (!strcmp(buf, INFOREG_COMMAND)) {
-        if (exec("inforeg", argv, &printInforeg, 1, is_foreground, fd) == -1){
+        if (exec("inforeg", argv, &printInforeg, 1, fg_flag, fd) == -1){
             printErrorMessage(buf, "Error printing registers");
             printNewline();
         }
@@ -358,7 +356,7 @@ int readBuffer(char *buf) {
         clear();
         return 0;
     } else if (!strcmp(buf, PS_COMMAND)){
-        if (exec("ps", argv, &ps, 1, is_foreground, fd) == -1){
+        if (exec("ps", argv, &ps, 1, fg_flag, fd) == -1){
             printErrorMessage(buf, "Error printing processes");
             printNewline();
         } 
@@ -416,24 +414,24 @@ int readBuffer(char *buf) {
         block(pid);
     } else if (!strcmp(buf, LOOP_COMMAND)){
         int pid;
-        if ((pid = exec("greets", argv, &greets, 1, 0, fd)) == -1) {
+        if ((pid = exec("greets", argv, &greets, 1, fg_flag, fd)) == -1) {
             printErrorMessage(buf, "Error creating process");
         }
         return pid;
     } else if (!strcmp(buf, CAT_COMMAND)) {
-        int toReturn = exec("cat", argv, &cat, 1, is_foreground, fd);
+        int toReturn = exec("cat", argv, &cat, 1, fg_flag, fd);
         waitpid();
         return toReturn;
     } else if (!strcmp(buf, WC_COMMAND)) {
-        int toReturn = exec("wc", argv, &wc, 1, is_foreground, fd);
+        int toReturn = exec("wc", argv, &wc, 1, fg_flag, fd);
         waitpid();
         return toReturn;
     } else if (!strcmp(buf, PHYLO_COMMAND)) {
-        int toReturn = exec("phylo", argv, &phylo, 1, is_foreground, fd);
+        int toReturn = exec("phylo", argv, &phylo, 1, fg_flag, fd);
         waitpid();
         return toReturn;
     } else if (!strcmp(buf, FILTER_COMMAND)) {
-        int toReturn = exec("filter", argv, &filter, 1, is_foreground, fd);
+        int toReturn = exec("filter", argv, &filter, 1, fg_flag, fd);
         waitpid();
         return toReturn;
     } else if (!strncmp(buf, TEST_PROCESSES_COMMAND, l = strlen(TEST_PROCESSES_COMMAND))){
@@ -648,7 +646,7 @@ int pipeCmd(char *buf)
     strncpy(right, buf + delimiterPos + 1, totalLength - delimiterPos);
     (right)[totalLength - delimiterPos - 1] = '\0';
 
-    int fd = pipe_open("pipes");
+    int fd = pipeOpen("pipes");
 
     long leftPid = readBuffer(left, 0, fd, 0);
     if (leftPid == -1)
@@ -671,7 +669,7 @@ int pipeCmd(char *buf)
 
     free(left);
     free(right);
-    pipe_close(fd);
+    pipeClose(fd);
 
     return 1;
 }

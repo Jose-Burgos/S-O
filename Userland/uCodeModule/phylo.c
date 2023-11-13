@@ -1,4 +1,4 @@
-#include <include/phylo.h>
+#include <phylo.h>
 #include <lib.h>
 
 #define MAX 10
@@ -29,6 +29,8 @@ typedef struct SharedData
     char hungry_lock[MAX][SEM_LEN];
     char think_unlock[MAX][SEM_LEN];
 } SharedData;
+
+static unsigned long fd[2] = {STDIN,STDOUT};
 
 void test(SharedData *shared_data, int id)
 {
@@ -98,7 +100,7 @@ void addPhylo(SharedData *shared_data)
     sem_wait(MUTEX);
     shared_data->state[id] = THINKING;
     shared_data->count++;
-    exec("phylo_proc", &phylo_proc, argv_proc, STDIN, STDOUT, 1, 0);
+    exec("phylo_proc", argv_proc, &phylo_proc, 1, 0, fd);
     sem_post(MUTEX);
 }
 
@@ -140,7 +142,7 @@ int phylo(int argc, char *argv[])
     {
         id[0] = '0' + i;
         ultoa((unsigned long)&shared_data, addr);
-        exec("phylo_proc", &phylo_proc, argv_proc, STDIN, STDOUT, 1, 0);
+        exec("phylo_proc", argv_proc, &phylo_proc, 1, 0, fd);
     }
 
     sem_post(MUTEX);

@@ -97,6 +97,81 @@ char *strncpy(char *dest, const char *src, int n) {
 
 /**
  * @brief
+ *  Copy the content of src into dest.
+ * @param dest
+ * @param src
+ * @return char*
+ */
+char *strcpy(char *dest, const char *src)
+{
+	char *aux;
+	for (aux = dest; *src != '\0';)
+		*(aux++) = *(src++);
+	*aux = '\0';
+	return aux;
+}
+
+char *strchr(const char *str, int c)
+{
+	while (*str != '\0')
+	{
+		if (*str == c)
+		{
+			return (char *)str;
+		}
+		str++;
+	}
+	return NULL;
+}
+
+unsigned long atoul(const char *str)
+{
+	int result = 0;
+	int i = 0;
+
+	// Parse the digits and build the integer value
+	while (str[i] != '\0')
+	{
+		if (str[i] >= '0' && str[i] <= '9')
+		{
+			result = result * 10 + (str[i] - '0');
+			i++;
+		}
+		else
+		{
+			// Stop parsing if a non-digit character is encountered
+			break;
+		}
+	}
+
+	return result;
+}
+
+long ultoa(unsigned long number, char *str)
+{
+	int digits = 1;
+	for (long n = number / 10; n != 0; digits++, n /= 10)
+		;
+
+	if (digits == 1)
+	{
+		str[0] = '0' + number;
+		str[1] = '\0';
+		return digits;
+	}
+
+	str[digits] = 0;
+	for (int i = digits - 1; i >= 0; i--)
+	{
+		str[i] = (number % 10) + '0';
+		number /= 10;
+	}
+
+	return digits;
+}
+
+/**
+ * @brief
  *  Transform integer into string.
  * @param number
  * @param str
@@ -399,21 +474,6 @@ void printString(char * str, Color color){
 }
 void beep(int frequency) {
 	sys_beep(frequency);
-}
-/**
- * @brief
- *  Copy the content of src into dest.
- * @param dest
- * @param src
- * @return char*
- */
-void strcpy(char *dest, const char *src) {
-	while (*src) {
-		*dest = *src;
-		dest++;
-		src++;
-	}
-	*dest = 0;
 }
 
 // --- Memory ---
