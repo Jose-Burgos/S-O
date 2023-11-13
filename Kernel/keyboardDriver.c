@@ -53,16 +53,22 @@ void saveKey(uint8_t c){
     if (c > 128)
         return;
 
-    if (ctrl && getKey(c) == 'c') {
-        ctrl = 0;
-        processP ppid = getCurrentProcess();
-        killFgroundProcess();
-        processReady(ppid->parent_pid);
-        return;
+    if (ctrl) {
+        if(getKey(c) == 'c') {
+            ctrl = 0;
+            processP ppid = getCurrentProcess();
+            killFgroundProcess();
+            processReady(ppid->parent_pid);
+            return;
+        }
+        if(getKey(c) == 'd') {
+            ctrl = 0;
+            buf.keys[buf.count++] = 4;
+            return;
+        }
     }
 
-    buf.keys[buf.count++] = getKey(c) + ('A'-'a') * shift;
-    
+    buf.keys[buf.count++] = getKey(c) + ('A'-'a') * shift;  
 }
 
 uint32_t readBuf(char * str, uint32_t count){
