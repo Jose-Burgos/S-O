@@ -20,7 +20,7 @@ typedef struct{
     int sem_id;
     char name[NAME_CHAR_LIMIT];
     uint64_t value;
-    uint64_t open_count; // Counter of pending 'close' signals
+    uint64_t open_count;
     uint64_t blocked_processes[MAX_PROC];
 
     uint64_t lock; 

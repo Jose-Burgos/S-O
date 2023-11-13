@@ -21,7 +21,7 @@ int main() {
         return -1;
     }
 
-    while (1) { // INIT process
+    while (1) { 
         shortSleep(1);
     }
     

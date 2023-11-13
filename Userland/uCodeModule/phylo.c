@@ -118,7 +118,7 @@ void removePhylo(SharedData *shared_data)
     sem_post(shared_data->think_unlock[id]);
 }
 
-int phylo()
+int phylo(int argc, char *argv[])
 {
     SharedData shared_data;
     shared_data.count = INITIAL;

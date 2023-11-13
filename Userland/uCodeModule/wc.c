@@ -4,7 +4,7 @@
 
 int wc(int argc, char **argv)
 {
-    char c[4] = {0, 0, 1, 1};
+    char c[3] = {0, 0, 0};
     char *buff = malloc(BUFF_MAX);
     if (buff == NULL) {
         return -1;
@@ -31,7 +31,14 @@ int wc(int argc, char **argv)
             buff[i++] = c[1];
         }
 
-    } while ((c[0] != 4 && c[0] != 0) || (c[1] != 4 && c[1] != 0));
+        if (c[0] == 0 && c[1] == 0)
+        {
+            putChar('\n');
+            buff[i] = 0;
+            i = 0;
+        }
+
+    } while ((c[0] != 4 && c[0] == 0) || (c[0] != 4 && c[1] == 0));
 
     long charCount = 0;
     long wordCount = 0;
@@ -41,12 +48,11 @@ int wc(int argc, char **argv)
     for (i = 0; buff[i] != '\0'; i++)
     {
         charCount++;
-
-        if (buff[i] == '\n') {
+        if (buff[i] == 0) {
             lineCount++;
         }
 
-        if (buff[i] == ' ' || buff[i] == '\t' || buff[i] == '\n') {
+        if (buff[i] == ' ' || buff[i] == '\t' || buff[i] == 0) {
             inWord = false;
         } else if (!inWord) {
             inWord = true;
@@ -55,7 +61,7 @@ int wc(int argc, char **argv)
     }
 
     // Increment line count if the last line didn't end with a newline
-    if (charCount > 0 && buff[charCount - 1] != '\n') {
+    if (buff[charCount - 1] == 0) {
         lineCount++;
     }
 

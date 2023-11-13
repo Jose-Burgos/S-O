@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <cat.h>
 
 void cat(int argc, char *args[])
@@ -25,13 +27,13 @@ void cat(int argc, char *args[])
             buff[i++] = c[1];
         }
 
-        if (c[0] == '\n' || c[1] == '\n')
+        if (c[0] == 0 && c[1] == 0)
         {
             buff[i] = 0;
-            printf("%s", buff);
+            printf("\n%s\n", buff);
             i = 0;
         }
 
-    } while ((c[0] != 4 && c[0] != 0) || (c[1] != 4 && c[1] != 0));
+    } while ((c[0] != 4 && c[0] == 0) || (c[0] != 4 && c[1] == 0));
     free(buff);
 }
