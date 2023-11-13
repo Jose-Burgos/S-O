@@ -456,31 +456,10 @@ int readBuffer(char *input, int read_fd, int write_fd, int fg_flag) {
         int toReturn = exec("test_mm", argv, &test_mm, 1, fg_flag, fd);
         waitpid();
         return toReturn;
-    } else if (!strncmp(buf, TEST_SYNC_COMMAND, l = strlen(TEST_SYNC_COMMAND))) {
-        if (buf[l] != ' ' && buf[l] != 0){
-            printError(COMMAND_NOT_FOUND_MESSAGE);
-            printNewline();
-            return 1;
-        }
-        long times = readDecimalInput(buf + l);
-        if (times == -1)
-            return 1;
-        char * arg = itoa2(times);
-        if (arg == NULL){
-            printErrorMessage(buf, "Error allocating memory");
-            printNewline();
-            return 1;
-        }
-        long number = readDecimalInput(buf + l + strlen(arg) + 1);
-        if (number == -1){
-            free(arg);
-            return 1;
-        }
-        char * arg1 = itoa2(number);
-        char * argv[] = {arg, arg1, NULL}; // MUST BE NULL TERMINATED 
-        SyncTest(argv);
-        free(arg);
-        free(arg1);
+    } else if(!strcmp(buf, TEST_SYNC_COMMAND)) {
+        int toReturn = exec("test_sync", argv, &test_sync, 1, fg_flag, fd);
+        waitpid();
+        return toReturn;
     } else {
         printError(COMMAND_NOT_FOUND_MESSAGE);
         printNewline();
